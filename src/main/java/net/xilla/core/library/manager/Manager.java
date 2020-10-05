@@ -71,12 +71,12 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
     }
 
     public void remove(T object) {
-        remove(object);
+        objectRemoved(object);
         this.data.remove(object.getKey());
     }
 
     public void remove(String key) {
-        remove(get(key));
+        objectRemoved(get(key));
         this.data.remove(key);
     }
 
