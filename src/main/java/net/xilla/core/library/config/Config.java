@@ -23,7 +23,7 @@ public class Config extends ManagerObject {
 
     public Config(String file) {
         super(file, ConfigManager.getInstance());
-        this.file = file;
+        this.file = ConfigManager.getInstance().getBaseFolder() + file;
         reload();
     }
 
@@ -31,7 +31,6 @@ public class Config extends ManagerObject {
         File fileObject = new File(file);
         json = new XillaJson();
         if(fileObject.exists()) {
-            JSONParser parser = new JSONParser();
             try {
                 FileReader fileReader = new FileReader(file);
                 json.parse(fileReader);

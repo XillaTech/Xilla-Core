@@ -1,6 +1,7 @@
 package net.xilla.core.library.config;
 
 import lombok.Getter;
+import lombok.Setter;
 import net.xilla.core.library.manager.Manager;
 import net.xilla.core.library.manager.XillaManager;
 
@@ -8,6 +9,10 @@ public class ConfigManager extends Manager<Config> {
 
     @Getter
     private static ConfigManager instance = new ConfigManager();
+
+    @Getter
+    @Setter
+    private String baseFolder = "";
 
     public ConfigManager() {
         super("Configs");
