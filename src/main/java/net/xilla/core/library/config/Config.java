@@ -230,12 +230,11 @@ public class Config extends ManagerObject {
 
     @Override
     public XillaJson getSerializedData() {
-        return null;
+        return json;
     }
 
     @Override
     public void loadSerializedData(XillaJson json) {
-
     }
 
 }
