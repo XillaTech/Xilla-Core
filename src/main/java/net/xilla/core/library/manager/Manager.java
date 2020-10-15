@@ -50,6 +50,7 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
 
     public void save() {
         if(config != null) {
+            config.clear();
             for (T object : data.values()) {
                 config.set(object.getKey(), object.getSerializedData().getJson());
             }
