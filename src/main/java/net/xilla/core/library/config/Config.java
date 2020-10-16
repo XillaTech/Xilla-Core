@@ -63,6 +63,14 @@ public class Config extends ManagerObject {
         return file;
     }
 
+    public boolean setDefault(String key, Object value) {
+        if(!json.containsKey(key)) {
+            json.put(key, value);
+            return true;
+        }
+        return false;
+    }
+
     public boolean setDefault(String key, String value) {
         if(!json.containsKey(key)) {
             json.put(key, value);
