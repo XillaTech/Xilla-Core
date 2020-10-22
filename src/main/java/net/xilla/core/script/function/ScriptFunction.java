@@ -2,7 +2,12 @@ package net.xilla.core.script.function;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.xilla.core.script.ScriptException;
+import net.xilla.core.script.ScriptObject;
 import net.xilla.core.script.object.ScriptVariable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class ScriptFunction {
 
@@ -12,20 +17,24 @@ public class ScriptFunction {
     private ScriptVariable[] variables;
     @Getter
     @Setter
-    private ScriptExecutor executor;
+    private ArrayList<ScriptExecutor> executors;
 
-    public ScriptFunction(String label, ScriptExecutor executor, ScriptVariable... variables) {
+    public ScriptFunction(String label, ScriptVariable... variables) {
         this.label = label;
-        this.executor = executor;
+        this.executors = new ArrayList<>();
         this.variables = variables;
     }
 
-    public void run() {
-        executor.run(variables);
+    public void addExecutor(ScriptExecutor executor) {
+        executors.add(executor);
     }
 
-    public void run(ScriptVariable... variables) {
-        executor.run(variables);
+    public ScriptObject[] run(int line, ScriptVariable... variables) throws Exception {
+        ScriptObject[] objects = new ScriptObject[executors.size()];
+        for(int i = 0; i < executors.size(); i++) {
+            objects[i] = executors.get(i).run(line, variables);
+        }
+        return objects;
     }
 
 }

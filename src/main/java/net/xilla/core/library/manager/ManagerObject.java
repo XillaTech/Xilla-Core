@@ -29,10 +29,14 @@ public abstract class ManagerObject extends XillaLibrary implements SerializedOb
         this.manager = XillaManager.getInstance().get(manager);
     }
 
-    public void setKey(String key) {
+    public void updateKey(String key) {
         this.key = key;
         manager.getData().remove(key);
         manager.getData().put(key, this);
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
 }
