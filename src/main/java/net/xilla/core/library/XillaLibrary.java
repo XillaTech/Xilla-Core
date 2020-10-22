@@ -10,8 +10,54 @@ public class XillaLibrary {
         return time / 1000.0 / 60.0 / 60.0;
     }
 
-    public String convertToTime(double time) {
-        return (int)time + "h " + (int)((time - (int)time) * 60) + "m";
+    public String convertToTime(long time) {
+        long seconds = time / 1000;
+
+        long minutes = seconds / 60;
+        seconds -= minutes * 60;
+
+        long hours = minutes / 60;
+        minutes -= hours * 60;
+
+        long days = hours / 24;
+        hours -= days * 24;
+
+        long weeks = days / 7;
+        days -= weeks * 7;
+
+        String response;
+
+        if(seconds == 1) {
+            response = "1 Second";
+        } else {
+            response = seconds + " Seconds";
+        }
+
+        if(minutes == 0) {
+            response = minutes + " Minute, " + response;
+        } else if(minutes > 0) {
+            response = minutes + " Minutes, " + response;
+        }
+
+        if(hours == 0) {
+            response = hours + " Hour, " + response;
+        } else if(hours > 0) {
+            response = hours + " Hours, " + response;
+        }
+
+        if(days == 0) {
+            response = days + " Day, " + response;
+        } else if(days > 0) {
+            response = days + " Days, " + response;
+        }
+
+        if(weeks == 0) {
+            response = minutes + " Week, " + response;
+        } else if(weeks > 0) {
+            response = minutes + " Weeks, " + response;
+        }
+
+        return response;
     }
 
     public long convertToMs(int hours) {
