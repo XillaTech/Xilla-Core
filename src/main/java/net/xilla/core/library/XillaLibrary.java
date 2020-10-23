@@ -33,28 +33,28 @@ public class XillaLibrary {
             response = seconds + " Seconds";
         }
 
-        if(minutes == 0) {
+        if(minutes == 1) {
             response = minutes + " Minute, " + response;
         } else if(minutes > 0) {
             response = minutes + " Minutes, " + response;
         }
 
-        if(hours == 0) {
+        if(hours == 1) {
             response = hours + " Hour, " + response;
         } else if(hours > 0) {
             response = hours + " Hours, " + response;
         }
 
-        if(days == 0) {
+        if(days == 1) {
             response = days + " Day, " + response;
         } else if(days > 0) {
             response = days + " Days, " + response;
         }
 
-        if(weeks == 0) {
-            response = minutes + " Week, " + response;
+        if(weeks == 1) {
+            response = weeks + " Week, " + response;
         } else if(weeks > 0) {
-            response = minutes + " Weeks, " + response;
+            response = weeks + " Weeks, " + response;
         }
 
         return response;
