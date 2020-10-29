@@ -5,6 +5,7 @@ import net.xilla.core.library.XillaLibrary;
 import net.xilla.core.library.json.XillaJson;
 import net.xilla.core.library.manager.ManagerObject;
 import net.xilla.core.library.manager.XillaManager;
+import net.xilla.core.library.net.XillaConnection;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;

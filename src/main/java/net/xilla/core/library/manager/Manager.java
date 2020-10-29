@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.xilla.core.library.config.Config;
 import net.xilla.core.library.json.XillaJson;
+import net.xilla.core.library.net.XillaConnection;
 import net.xilla.core.log.LogLevel;
 import net.xilla.core.log.Logger;
 

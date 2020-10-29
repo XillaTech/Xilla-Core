@@ -4,6 +4,7 @@ import lombok.Getter;
 import net.xilla.core.library.json.SerializedObject;
 import net.xilla.core.library.json.XillaJson;
 import net.xilla.core.library.XillaLibrary;
+import net.xilla.core.library.net.XillaConnection;
 
 public abstract class ManagerObject extends XillaLibrary implements SerializedObject {
 

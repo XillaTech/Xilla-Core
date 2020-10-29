@@ -2,6 +2,8 @@ package net.xilla.core.library.manager;
 
 import lombok.Getter;
 
+import java.util.HashMap;
+
 public class XillaManager extends Manager<Manager> {
 
     @Getter
