@@ -10,18 +10,14 @@ import java.net.Socket;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 
-public class Client extends Worker {
+public abstract class Client extends Worker {
 
     private Socket socket;
     private LinkedList<String> messages = new LinkedList<>();
     private ExecutorService pool;
-    private SendingExecutor sendingExecutor;
-    private ReceiveExecutor receiveExecutor;
 
-    public Client(String name, String ip, int port, SendingExecutor sendingExecutor, ReceiveExecutor receiveExecutor) throws IOException {
+    public Client(String name, String ip, int port) throws IOException {
         super(name, -1);
-        this.sendingExecutor = sendingExecutor;
-        this.receiveExecutor = receiveExecutor;
 
         if (ip != null && !ip.isEmpty()) {
             this.socket = new Socket(InetAddress.getByName(ip), port);
@@ -45,7 +41,7 @@ public class Client extends Worker {
 
                 if (out != null) {
                     out.println(input);
-                    shouldWait = sendingExecutor.run(ResponseType.SENDING, socket.getInetAddress().getHostAddress(), input);
+                    shouldWait = messageSent(socket.getInetAddress().getHostAddress(), input);
                     out.flush();
                 }
             }
@@ -59,7 +55,7 @@ public class Client extends Worker {
                 BufferedReader in = new BufferedReader(
                         new InputStreamReader(socket.getInputStream()));
                 while ((data = in.readLine()) != null) {
-                    addMessage(receiveExecutor.run(ResponseType.RECEIVING, socket.getInetAddress().getHostAddress(), data));
+                    addMessage(messageReceived(socket.getInetAddress().getHostAddress(), data));
                     break;
                 }
             } catch (Exception ex) {
@@ -71,5 +67,9 @@ public class Client extends Worker {
     public void addMessage(String message) {
         this.messages.add(message);
     }
+
+    public abstract boolean messageSent(String ip, String input);
+
+    public abstract String messageReceived(String ip, String input);
 
 }

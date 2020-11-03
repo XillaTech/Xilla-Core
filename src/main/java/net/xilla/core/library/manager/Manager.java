@@ -7,7 +7,10 @@ import net.xilla.core.library.json.XillaJson;
 import net.xilla.core.library.net.XillaConnection;
 import net.xilla.core.log.LogLevel;
 import net.xilla.core.log.Logger;
+import org.json.simple.JSONObject;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -26,6 +29,8 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
     @Getter
     private Map<String, ManagerCache<T>> cacheList;
 
+    private Class<T> clazz = null;
+
     public Manager(String name) {
         super(name, XillaManager.getInstance());
         this.name = name;
@@ -37,16 +42,36 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
         }
     }
 
+    public Manager(String name, String file) {
+        this(name);
+        this.config = new Config(file);
+    }
+
+    public Manager(String name, Class<T> clazz) {
+        super(name, XillaManager.getInstance());
+        this.name = name;
+        this.data = new ConcurrentHashMap<>();
+        this.cacheList = new ConcurrentHashMap<>();
+
+        this.clazz = clazz;
+
+        if(!(this instanceof XillaManager)) {
+            XillaManager.getInstance().put(this);
+        }
+    }
+
+    public Manager(String name, String file, Class<T> clazz) {
+        this(name);
+        this.config = new Config(file);
+
+        this.clazz = clazz;
+    }
+
     public ManagerCache<T> getCache(String key) {
         if(!cacheList.containsKey(key)) {
             cacheList.put(key, new ManagerCache<T>());
         }
         return cacheList.get(key);
-    }
-
-    public Manager(String name, String file) {
-        this(name);
-        this.config = new Config(file);
     }
 
     public void save() {
@@ -61,7 +86,15 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
         }
     }
 
-    protected abstract void load();
+    protected void load() {
+        if(clazz != null) {
+            for (Object obj : getConfig().getJson().getJson().values()) {
+                JSONObject json = (JSONObject) obj;
+                T object = getObject(new XillaJson(json));
+                put(object);
+            }
+        }
+    }
 
     protected abstract void objectAdded(T obj);
 
@@ -116,5 +149,22 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
         } else {
             return getSerializedData().toJSONString();
         }
+    }
+
+    public T getObject(XillaJson json) {
+        Constructor<?>[] constructors = clazz.getConstructors();
+        for (Constructor<?> c : constructors) {
+            if (c.getParameterTypes().length == 0) {
+                try {
+                    T obj = (T)c.newInstance();
+                    obj.loadSerializedData(json);
+                    Logger.log(LogLevel.DEBUG, "Loaded object " + obj.getKey() + " - " + obj.getSerializedData().toJSONString(), getClass());
+                    return obj;
+                } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
+                }
+                break;
+            }
+        }
+        return null;
     }
 }

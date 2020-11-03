@@ -10,18 +10,14 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.*;
 
-public class Server extends Worker {
+public abstract class Server extends Worker {
 
     private ServerSocket server;
     private boolean running;
     private byte[] buf = new byte[256];
-    private SendingExecutor sendingExecutor;
-    private ReceiveExecutor receiveExecutor;
 
-    public Server(String name, String ip, int port, SendingExecutor sendingExecutor, ReceiveExecutor receiveExecutor) throws IOException {
+    public Server(String name, String ip, int port) throws IOException {
         super(name, -1);
-        this.sendingExecutor = sendingExecutor;
-        this.receiveExecutor = receiveExecutor;
 
         if (ip != null && !ip.isEmpty()) {
             this.server = new ServerSocket(port, 1, InetAddress.getByName(ip));
@@ -55,9 +51,9 @@ public class Server extends Worker {
             }
 
             if (out != null) {
-                String input = receiveExecutor.run(ResponseType.RECEIVING, clientAddress, data);
+                String input = messageReceived(getSocketAddress().getHostAddress(), data);
                 if(input != null && !input.isEmpty()) {
-                    sendingExecutor.run(ResponseType.SENDING, clientAddress, input);
+                    messageSent(getSocketAddress().getHostAddress(), input);
                     out.println(input);
                     out.flush();
                 }
@@ -71,5 +67,9 @@ public class Server extends Worker {
     public int getPort() {
         return this.server.getLocalPort();
     }
+
+    public abstract boolean messageSent(String ip, String input);
+
+    public abstract String messageReceived(String ip, String input);
 
 }

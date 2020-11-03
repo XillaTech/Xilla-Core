@@ -24,62 +24,79 @@ public class XillaConnection<T extends Packet> {
     @Getter
     private Class<T> clazz;
 
+    private final XillaConnection<T> instance;
+
     public XillaConnection(String name, String ip, int clientPort, int serverPort, Class<T> clazz) throws IOException {
         this.clazz = clazz;
 
-        this.server = new Server(name + "-server", ip, serverPort, (type, address, data) -> {
-            Logger.log(LogLevel.DEBUG, "Server: (" + address + ") " + "Sending" + " " + data, getClass());
-            ConnectionData<T> connectionData = new ConnectionData<>(data);
+        this.instance = this;
 
-            T obj = connectionData.getObject(this);
+        this.server = new Server(name + "-server", ip, serverPort) {
+            @Override
+            public boolean messageSent(String ip, String input) {
+                Logger.log(LogLevel.DEBUG, "Server: (" + ip + ") " + "Sending" + " " + input, getClass());
+                ConnectionData<T> connectionData = new ConnectionData<>(input);
 
-            if(obj != null) {
-                return obj.expectsResponse(this);
-            } else  {
-                return false;
-            }
-        }, (type, address, data) -> {
-            Logger.log(LogLevel.DEBUG, "Server: (" + address + ") " + "Receiving" + " " + data, getClass());
-            ConnectionData<T> connectionData = new ConnectionData<>(data);
+                Packet obj = connectionData.getObject(instance);
 
-            T obj = connectionData.getObject(this);
-
-            if(obj != null) {
-                // Checks if it's waiting for a response. If it's not waiting then there's no need to send the response.
-                if (connectionData.isResponse() && obj.expectsResponse(this)) {
-                    obj.setKey(UUID.randomUUID().toString());
-                    ConnectionData<T> cData = new ConnectionData<>(obj, this);
-                    return cData.getRaw();
-                } else {
-                    obj.loadFromDatabase(this);
+                if(obj != null) {
+                    return obj.expectsResponse(instance);
+                } else  {
+                    return false;
                 }
             }
-            return null;
-        });
 
-        this.client = new Client(name + "-client", ip, clientPort, (type, address, data) -> {
-            Logger.log(LogLevel.DEBUG, "Client: (" + address + ") " + "Sending" + " " + data, getClass());
-            ConnectionData<T> connectionData = new ConnectionData<>(data);
+            @Override
+            public String messageReceived(String ip, String input) {
+                Logger.log(LogLevel.DEBUG, "Server: (" + ip + ") " + "Receiving" + " " + input, getClass());
+                ConnectionData<T> connectionData = new ConnectionData<>(input);
 
-            T obj = connectionData.getObject(this);
-            if(obj != null) {
-                return obj.expectsResponse(this);
-            }
-            return false;
-        }, (type, address, data) -> {
-            Logger.log(LogLevel.DEBUG, "Client: (" + address + ") " + "Receiving" + " " + data, getClass());
-            ConnectionData<T> connectionData = new ConnectionData<>(data);
+                Packet obj = connectionData.getObject(instance);
 
-            T obj = connectionData.getObject(this);
-
-            if(obj != null) {
-                if(obj.expectsResponse(this)){
-                    ConnectionData<T> cData = new ConnectionData<>(obj, this);
-                    return cData.getRaw();
+                if(obj != null) {
+                    // Checks if it's waiting for a response. If it's not waiting then there's no need to send the response.
+                    if (connectionData.isResponse() && obj.expectsResponse(instance)) {
+                        obj.setKey(UUID.randomUUID().toString());
+                        ConnectionData<T> cData = new ConnectionData<>(obj, instance);
+                        return cData.getRaw();
+                    } else {
+                        obj.loadFromDatabase(instance);
+                    }
                 }
+                return null;
             }
-            return null;
-        });
+        };
+
+
+        this.client = new Client(name + "-client", ip, clientPort) {
+            @Override
+            public boolean messageSent(String ip, String input) {
+                    Logger.log(LogLevel.DEBUG, "Client: (" + ip + ") " + "Sending" + " " + input, getClass());
+                    ConnectionData<T> connectionData = new ConnectionData<>(input);
+
+                    Packet obj = connectionData.getObject(instance);
+                    if(obj != null) {
+                        return obj.expectsResponse(instance);
+                    }
+                    return false;
+            }
+
+            @Override
+            public String messageReceived(String ip, String input) {
+                Logger.log(LogLevel.DEBUG, "Client: (" + ip + ") " + "Receiving" + " " + input, getClass());
+                ConnectionData<T> connectionData = new ConnectionData<>(input);
+
+                Packet obj = connectionData.getObject(instance);
+
+                if(obj != null) {
+                    if(obj.expectsResponse(instance)){
+                        ConnectionData<T> cData = new ConnectionData<>(obj, instance);
+                        return cData.getRaw();
+                    }
+                }
+                return null;
+            }
+        };
     }
 
     public void addMessage(ConnectionData data) {

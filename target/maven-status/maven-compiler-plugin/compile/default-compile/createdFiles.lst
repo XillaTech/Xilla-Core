@@ -1,4 +1,5 @@
-net\xilla\core\library\worker\ObjectWorker.class
+net\xilla\core\library\manager\StoredData.class
 net\xilla\core\library\worker\WorkerManager.class
+net\xilla\core\library\worker\ObjectWorker.class
 net\xilla\core\script\ScriptObject.class
 net\xilla\core\library\manager\ManagerCache.class

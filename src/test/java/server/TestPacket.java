@@ -1,6 +1,5 @@
 package server;
 
-import com.sun.tools.javac.Main;
 import net.xilla.core.library.json.XillaJson;
 import net.xilla.core.library.net.XillaConnection;
 import net.xilla.core.library.net.manager.Packet;

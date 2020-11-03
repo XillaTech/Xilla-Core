@@ -6,9 +6,12 @@ import net.xilla.core.library.json.XillaJson;
 import net.xilla.core.library.manager.ManagerObject;
 import net.xilla.core.library.manager.XillaManager;
 import net.xilla.core.library.net.XillaConnection;
+import net.xilla.core.log.LogLevel;
+import net.xilla.core.log.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.FileReader;
@@ -21,6 +24,7 @@ public class Config extends ManagerObject {
 
     private String file;
     private XillaJson json;
+    private Yaml yaml;
 
     public Config(String file) {
         super(file, ConfigManager.getInstance());
@@ -29,34 +33,46 @@ public class Config extends ManagerObject {
     }
 
     private void reload() {
-        File fileObject = new File(file);
-        json = new XillaJson();
-        if(fileObject.exists()) {
-            try {
-                FileReader fileReader = new FileReader(file);
-                json.parse(fileReader);
-                fileReader.close();
-            } catch (Exception e) {
-            }
-        } else {
-            try {
-                if(fileObject.getParentFile() != null) {
-                    fileObject.getParentFile().mkdirs();
+        if(file.endsWith(".json")) {
+            File fileObject = new File(file);
+            json = new XillaJson();
+            if(fileObject.exists()) {
+                try {
+                    FileReader fileReader = new FileReader(file);
+                    json.parse(fileReader);
+                    fileReader.close();
+                } catch (Exception e) {
                 }
-                fileObject.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
+            } else {
+                try {
+                    if(fileObject.getParentFile() != null) {
+                        fileObject.getParentFile().mkdirs();
+                    }
+                    fileObject.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
+        } else if(file.endsWith(".yml")) {
+
+        } else {
+            Logger.log(LogLevel.FATAL, "Invalid file type for file " + file, getClass());
         }
     }
 
     public void save() {
-        try {
-            FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write(formatJSONStr());
-            fileWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(file.endsWith(".json")) {
+            try {
+                FileWriter fileWriter = new FileWriter(file);
+                fileWriter.write(formatJSONStr());
+                fileWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else if(file.endsWith(".yml")) {
+
+        } else {
+            Logger.log(LogLevel.FATAL, "Invalid file type for file " + file, getClass());
         }
     }
 
@@ -65,73 +81,15 @@ public class Config extends ManagerObject {
     }
 
     public boolean setDefault(String key, Object value) {
-        if(!json.containsKey(key)) {
-            json.put(key, value);
-            return true;
-        }
-        return false;
-    }
+        if(file.endsWith(".json")) {
+            if(!json.containsKey(key)) {
+                json.put(key, value);
+                return true;
+            }
+        } else if(file.endsWith(".yml")) {
 
-    public boolean setDefault(String key, String value) {
-        if(!json.containsKey(key)) {
-            json.put(key, value);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean setDefault(String key, List<String> value) {
-        if(!json.containsKey(key)) {
-            json.put(key, value);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean setDefault(String key, JSONObject value) {
-        if(!json.containsKey(key)) {
-            json.put(key, value);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean setDefault(String key, int value) {
-        if(!json.containsKey(key)) {
-            json.put(key, value);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean setDefault(String key, double value) {
-        if(!json.containsKey(key)) {
-            json.put(key, value);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean setDefault(String key, float value) {
-        if(!json.containsKey(key)) {
-            json.put(key, value);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean setDefault(String key, long value) {
-        if(!json.containsKey(key)) {
-            json.put(key, value);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean setDefault(String key, boolean value) {
-        if(!json.containsKey(key)) {
-            json.put(key, value);
-            return true;
+        } else {
+            Logger.log(LogLevel.FATAL, "Invalid file type for file " + file, getClass());
         }
         return false;
     }

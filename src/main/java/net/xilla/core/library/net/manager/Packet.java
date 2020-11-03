@@ -8,6 +8,7 @@ import net.xilla.core.log.LogLevel;
 import net.xilla.core.log.Logger;
 import org.json.simple.JSONObject;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 public abstract class Packet extends ManagerObject {

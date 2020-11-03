@@ -4,21 +4,55 @@ import lombok.Getter;
 import net.xilla.core.library.json.SerializedObject;
 import net.xilla.core.library.json.XillaJson;
 import net.xilla.core.library.XillaLibrary;
-import net.xilla.core.library.net.XillaConnection;
+
+import java.lang.reflect.Field;
 
 public abstract class ManagerObject extends XillaLibrary implements SerializedObject {
 
     @Override
-    public abstract XillaJson getSerializedData();
+    public XillaJson getSerializedData() {
+        XillaJson json = new XillaJson();
+
+        Class<?> c = this.getClass();
+
+        try {
+            for(Field field : getClass().getDeclaredFields()) {
+                if (field.getAnnotation(StoredData.class) != null) {
+                    json.put(field.getName(), field.get(this));
+                }
+            }
+            return json;
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     @Override
-    public abstract void loadSerializedData(XillaJson json);
+    public void loadSerializedData(XillaJson json) {
+        for(Field field : getClass().getDeclaredFields()) {
+            if (field.getAnnotation(StoredData.class) != null) {
+                if(json.containsKey(field.getName())) {
+                    try {
+                        field.set(this, json.get(field.getName()));
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
 
     @Getter
+    @StoredData
     private String key;
 
     @Getter
     private Manager manager;
+
+    public ManagerObject() {
+
+    }
 
     public ManagerObject(String key, Manager manager) {
         this.key = key;
