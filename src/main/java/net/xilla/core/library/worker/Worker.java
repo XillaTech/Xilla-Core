@@ -17,8 +17,6 @@ public abstract class Worker extends ManagerObject {
     private ArrayList<Long> ticks;
     private boolean isAlive;
     private boolean isPaused;
-    private String name;
-
     @Getter
     private Thread thread;
 

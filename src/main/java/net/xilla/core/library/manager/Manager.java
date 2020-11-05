@@ -91,6 +91,7 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
             for (Object obj : getConfig().getJson().getJson().values()) {
                 JSONObject json = (JSONObject) obj;
                 T object = getObject(new XillaJson(json));
+                System.out.println(object.getSerializedData());
                 put(object);
             }
         }
@@ -152,15 +153,24 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
     }
 
     public T getObject(XillaJson json) {
+        System.out.println("A");
         Constructor<?>[] constructors = clazz.getConstructors();
+        System.out.println("B");
         for (Constructor<?> c : constructors) {
+            System.out.println("C");
             if (c.getParameterTypes().length == 0) {
+                System.out.println("D");
                 try {
+                    System.out.println("E");
                     T obj = (T)c.newInstance();
+                    System.out.println("F1");
                     obj.loadSerializedData(json);
+                    System.out.println("G");
+                    System.out.println("G " + obj.getSerializedData().getJson());
                     Logger.log(LogLevel.DEBUG, "Loaded object " + obj.getKey() + " - " + obj.getSerializedData().toJSONString(), getClass());
                     return obj;
                 } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
+                    e.printStackTrace();
                 }
                 break;
             }

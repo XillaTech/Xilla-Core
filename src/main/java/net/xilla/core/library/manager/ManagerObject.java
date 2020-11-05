@@ -18,9 +18,21 @@ public abstract class ManagerObject extends XillaLibrary implements SerializedOb
         try {
             for(Field field : getClass().getDeclaredFields()) {
                 if (field.getAnnotation(StoredData.class) != null) {
+                    if(!field.isAccessible()) {
+                        field.setAccessible(true);
+                        json.put(field.getName(), field.get(this));
+                        field.setAccessible(false);
+                    } else {
+                        json.put(field.getName(), field.get(this));
+                    }
+                }
+            }
+            for(Field field : getClass().getFields()) {
+                if (field.getAnnotation(StoredData.class) != null) {
                     json.put(field.getName(), field.get(this));
                 }
             }
+            json.put("key", getKey());
             return json;
         } catch (IllegalAccessException e) {
             e.printStackTrace();
@@ -30,11 +42,35 @@ public abstract class ManagerObject extends XillaLibrary implements SerializedOb
 
     @Override
     public void loadSerializedData(XillaJson json) {
+        setKey(json.get("key"));
         for(Field field : getClass().getDeclaredFields()) {
             if (field.getAnnotation(StoredData.class) != null) {
                 if(json.containsKey(field.getName())) {
                     try {
-                        field.set(this, json.get(field.getName()));
+                        if(!field.isAccessible()) {
+                            field.setAccessible(true);
+                            field.set(this, json.get(field.getName()));
+                            field.setAccessible(false);
+                        } else {
+                            field.set(this, json.get(field.getName()));
+                        }
+                    } catch (IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        for(Field field : getClass().getFields()) {
+            if (field.getAnnotation(StoredData.class) != null) {
+                if(json.containsKey(field.getName())) {
+                    try {
+                        if(!field.isAccessible()) {
+                            field.setAccessible(true);
+                            field.set(this, json.get(field.getName()));
+                            field.setAccessible(false);
+                        } else {
+                            field.set(this, json.get(field.getName()));
+                        }
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     }
@@ -44,14 +80,12 @@ public abstract class ManagerObject extends XillaLibrary implements SerializedOb
     }
 
     @Getter
-    @StoredData
     private String key;
 
     @Getter
     private Manager manager;
 
     public ManagerObject() {
-
     }
 
     public ManagerObject(String key, Manager manager) {
