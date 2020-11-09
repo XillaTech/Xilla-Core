@@ -1,5 +1,5 @@
 import net.xilla.core.library.manager.ManagerObject;
-import net.xilla.core.library.net.manager.PacketManager;
+import net.xilla.core.library.net.manager.packet.PacketManager;
 import net.xilla.core.log.LogLevel;
 import net.xilla.core.log.Logger;
 

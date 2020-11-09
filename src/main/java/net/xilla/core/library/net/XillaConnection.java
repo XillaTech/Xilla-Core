@@ -1,18 +1,13 @@
 package net.xilla.core.library.net;
 
 import lombok.Getter;
-import net.xilla.core.library.json.XillaJson;
-import net.xilla.core.library.manager.ManagerObject;
 import net.xilla.core.library.net.base.Client;
 import net.xilla.core.library.net.base.Server;
-import net.xilla.core.library.net.manager.Packet;
+import net.xilla.core.library.net.manager.packet.Packet;
 import net.xilla.core.log.LogLevel;
 import net.xilla.core.log.Logger;
 
 import java.io.IOException;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.LinkedList;
 import java.util.UUID;
 
 public class XillaConnection<T extends Packet> {

@@ -11,6 +11,8 @@ import org.json.simple.JSONObject;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -91,8 +93,11 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
             for (Object obj : getConfig().getJson().getJson().values()) {
                 JSONObject json = (JSONObject) obj;
                 T object = getObject(new XillaJson(json));
-                System.out.println(object.getSerializedData());
-                put(object);
+                if(object == null) {
+                    Logger.log(LogLevel.ERROR, "No valid constructor found for objects in manager " + getName(), getClass());
+                } else {
+                    put(object);
+                }
             }
         }
     }
@@ -153,20 +158,12 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
     }
 
     public T getObject(XillaJson json) {
-        System.out.println("A");
         Constructor<?>[] constructors = clazz.getConstructors();
-        System.out.println("B");
         for (Constructor<?> c : constructors) {
-            System.out.println("C");
             if (c.getParameterTypes().length == 0) {
-                System.out.println("D");
                 try {
-                    System.out.println("E");
                     T obj = (T)c.newInstance();
-                    System.out.println("F1");
                     obj.loadSerializedData(json);
-                    System.out.println("G");
-                    System.out.println("G " + obj.getSerializedData().getJson());
                     Logger.log(LogLevel.DEBUG, "Loaded object " + obj.getKey() + " - " + obj.getSerializedData().toJSONString(), getClass());
                     return obj;
                 } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
@@ -177,4 +174,9 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
         }
         return null;
     }
+
+    public List<T> iterate() {
+        return new LinkedList<>(data.values());
+    }
+
 }

@@ -1,5 +1,11 @@
 net\xilla\core\library\manager\StoredData.class
 net\xilla\core\library\worker\WorkerManager.class
+net\xilla\core\library\net\manager\mesh\update\UpdateManager.class
 net\xilla\core\library\worker\ObjectWorker.class
+net\xilla\core\library\net\manager\mesh\UpdateLog.class
+net\xilla\core\library\net\manager\mesh\update\Update.class
+net\xilla\core\library\net\manager\mesh\Server.class
+net\xilla\core\library\net\manager\packet\Packet.class
 net\xilla\core\script\ScriptObject.class
+net\xilla\core\library\net\manager\packet\PacketManager.class
 net\xilla\core\library\manager\ManagerCache.class

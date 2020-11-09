@@ -1,4 +1,4 @@
-package net.xilla.core.library.net.manager;
+package net.xilla.core.library.net.manager.packet;
 
 import lombok.Getter;
 import net.xilla.core.library.json.XillaJson;

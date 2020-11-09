@@ -2,12 +2,11 @@ package server;
 
 import net.xilla.core.library.json.XillaJson;
 import net.xilla.core.library.net.XillaConnection;
-import net.xilla.core.library.net.manager.Packet;
+import net.xilla.core.library.net.manager.packet.Packet;
 import net.xilla.core.log.LogLevel;
 import net.xilla.core.log.Logger;
 
 import java.util.UUID;
-import java.util.function.Supplier;
 
 public class TestPacket extends Packet {
 
