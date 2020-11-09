@@ -90,12 +90,20 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
 
     protected void load() {
         if(clazz != null) {
-            for (Object obj : getConfig().getJson().getJson().values()) {
+            for (Object key : getConfig().getJson().getJson().keySet()) {
+                Object obj = getConfig().get(key.toString());
+
                 JSONObject json = (JSONObject) obj;
-                T object = getObject(new XillaJson(json));
-                if(object == null) {
-                    Logger.log(LogLevel.ERROR, "No valid constructor found for objects in manager " + getName(), getClass());
+                T object = get(key.toString());
+                if (object == null) {
+                    object = getObject(new XillaJson(json));
+                    if (object == null) {
+                        Logger.log(LogLevel.ERROR, "No valid constructor found for objects in manager " + getName(), getClass());
+                    } else {
+                        put(object);
+                    }
                 } else {
+                    object.loadSerializedData(new XillaJson(json));
                     put(object);
                 }
             }

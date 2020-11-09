@@ -13,9 +13,6 @@ public abstract class ManagerObject extends XillaLibrary implements SerializedOb
     @Override
     public XillaJson getSerializedData() {
         XillaJson json = new XillaJson();
-
-        Class<?> c = this.getClass();
-
         try {
             for(Field field : getClass().getDeclaredFields()) {
                 if (field.getAnnotation(StoredData.class) != null) {
