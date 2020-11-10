@@ -1,6 +1,9 @@
 package net.xilla.core.library.config;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import net.xilla.core.library.XillaLibrary;
 import net.xilla.core.library.json.XillaJson;
 import net.xilla.core.library.manager.ManagerObject;
@@ -13,10 +16,10 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.yaml.snakeyaml.Yaml;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +27,6 @@ public class Config extends ManagerObject {
 
     private String file;
     private XillaJson json;
-    private Yaml yaml;
 
     public Config(String file) {
         super(file, ConfigManager.getInstance());
@@ -33,28 +35,37 @@ public class Config extends ManagerObject {
     }
 
     private void reload() {
+        System.out.println("Loading config " + file);
+        File fileObject = new File(file);
+        if(!fileObject.exists()) {
+            try {
+                if (fileObject.getParentFile() != null) {
+                    fileObject.getParentFile().mkdirs();
+                }
+                fileObject.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        json = new XillaJson();
         if(file.endsWith(".json")) {
-            File fileObject = new File(file);
-            json = new XillaJson();
-            if(fileObject.exists()) {
-                try {
-                    FileReader fileReader = new FileReader(file);
-                    json.parse(fileReader);
-                    fileReader.close();
-                } catch (Exception e) {
-                }
-            } else {
-                try {
-                    if(fileObject.getParentFile() != null) {
-                        fileObject.getParentFile().mkdirs();
-                    }
-                    fileObject.createNewFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            try {
+                FileReader fileReader = new FileReader(file);
+                json.parse(fileReader);
+                fileReader.close();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         } else if(file.endsWith(".yml")) {
-
+            Yaml yaml = new Yaml();
+            try(InputStream in = Files.newInputStream(Paths.get(file))) {
+                Map<String, Object> data = yaml.load(in);
+                System.out.println(data);
+                json.getJson().putAll(data);
+            } catch(IOException ex) {
+                ex.printStackTrace();
+            }
         } else {
             Logger.log(LogLevel.FATAL, "Invalid file type for file " + file, getClass());
         }
@@ -70,6 +81,18 @@ public class Config extends ManagerObject {
                 e.printStackTrace();
             }
         } else if(file.endsWith(".yml")) {
+            Yaml yaml = new Yaml();
+            try(FileWriter writer = new FileWriter(file)) {
+                Map<String, Object> data = new HashMap<>();
+
+                for(Object key : json.getJson().keySet()) {
+                    data.put(key.toString(), json.getJson().get(key));
+                }
+
+                yaml.dump(data, writer);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
 
         } else {
             Logger.log(LogLevel.FATAL, "Invalid file type for file " + file, getClass());
@@ -81,15 +104,9 @@ public class Config extends ManagerObject {
     }
 
     public boolean setDefault(String key, Object value) {
-        if(file.endsWith(".json")) {
-            if(!json.containsKey(key)) {
-                json.put(key, value);
-                return true;
-            }
-        } else if(file.endsWith(".yml")) {
-
-        } else {
-            Logger.log(LogLevel.FATAL, "Invalid file type for file " + file, getClass());
+        if(!json.containsKey(key)) {
+            json.put(key, value);
+            return true;
         }
         return false;
     }

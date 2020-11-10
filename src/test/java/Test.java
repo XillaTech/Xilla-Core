@@ -5,6 +5,7 @@ import net.xilla.core.log.Logger;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Test {
 
@@ -14,22 +15,32 @@ public class Test {
 
     private PacketManager manager = PacketManager.getInstance();
 
+    private static boolean booleanTest = true;
+    private volatile boolean ATOMIC_TEST = true;
+
+    private static final double DIVIDER = 1;
+
     public Test() {
-        Logger.setLogLevel(LogLevel.DEBUG);
 
-        System.out.println("Fields");
+        long start = System.currentTimeMillis();
 
-        for(Field field : ManagerObject.class.getFields()) {
-            System.out.println(field.getName());
-            for(Annotation ann : field.getDeclaredAnnotations()) {
-                System.out.println(" > " + ann.annotationType().getName());
-            }
-            for(Annotation ann : field.getAnnotations()) {
-                System.out.println(" > " + ann.annotationType().getName());
-            }
+        for (int i = 0; i < 100000000; i++) {
+            booleanTest = !booleanTest;
         }
 
-        System.out.println("Declared Fields");
+        long time = System.currentTimeMillis() - start;
+
+        System.out.println("Took " + (time / DIVIDER) + "ms");
+
+        start = System.currentTimeMillis();
+
+        for (int i = 0; i < 100000000; i++) {
+            ATOMIC_TEST = !ATOMIC_TEST;
+        }
+
+        time = System.currentTimeMillis() - start;
+
+        System.out.println("Took " + (time / DIVIDER) + "ms");
 
 //        try {
 //            XillaConnection<TestPacket> xillaConnection = new XillaConnection<>("Test", null, 732, 732, TestPacket.class);

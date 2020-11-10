@@ -26,18 +26,16 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
     private Config config = null;
 
     @Getter
-    private Map<String, T> data;
+    private final Map<String, T> data = new ConcurrentHashMap<>();
 
     @Getter
-    private Map<String, ManagerCache<T>> cacheList;
+    private final Map<String, ManagerCache<T>> cacheList = new ConcurrentHashMap<>();
 
     private Class<T> clazz = null;
 
     public Manager(String name) {
         super(name, XillaManager.getInstance());
         this.name = name;
-        this.data = new ConcurrentHashMap<>();
-        this.cacheList = new ConcurrentHashMap<>();
 
         if(!(this instanceof XillaManager)) {
             XillaManager.getInstance().put(this);
@@ -52,8 +50,6 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
     public Manager(String name, Class<T> clazz) {
         super(name, XillaManager.getInstance());
         this.name = name;
-        this.data = new ConcurrentHashMap<>();
-        this.cacheList = new ConcurrentHashMap<>();
 
         this.clazz = clazz;
 
@@ -80,7 +76,16 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
         if(config != null) {
             config.clear();
             for (T object : data.values()) {
-                config.set(object.getKey(), object.getSerializedData().getJson());
+                try {
+                    XillaJson json = object.getSerializedData();
+                    if(json == null) {
+                        throw new Exception("Manager Object is missing json data!");
+                    }
+                    config.set(object.getKey(), json.getJson());
+                } catch (Exception ex) {
+                    Logger.log(LogLevel.ERROR, "Error while saving item " + object.getKey() + "!", getClass());
+                    ex.printStackTrace();
+                }
             }
             config.save();
         } else {
