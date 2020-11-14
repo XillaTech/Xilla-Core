@@ -12,5 +12,6 @@ Currently it is coded in java but there are plans in the distant future to add o
 <br><br>
 # Some upcoming experimental features
 - [Experimental] Server/client socket connection. This allows for a controller/server structure.
+- [Experimental / Upcoming] Custom scripting system allowing people to modify the core or code plugins.
 - [Upcoming] Decentralized server setup with object management and computing.
 - [Upcoming] Logs being stored to files
