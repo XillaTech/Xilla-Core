@@ -1,10 +1,18 @@
 import net.xilla.core.library.manager.ManagerObject;
+import net.xilla.core.library.net.ConnectionData;
+import net.xilla.core.library.net.XillaConnection;
 import net.xilla.core.library.net.manager.packet.PacketManager;
 import net.xilla.core.log.LogLevel;
 import net.xilla.core.log.Logger;
+import net.xilla.core.script.Script;
+import server.TestPacket;
+import test.Test1;
+import test.Test2;
 
+import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Test {
@@ -13,34 +21,9 @@ public class Test {
         new Test();
     }
 
-    private PacketManager manager = PacketManager.getInstance();
-
-    private static boolean booleanTest = true;
-    private volatile boolean ATOMIC_TEST = true;
-
-    private static final double DIVIDER = 1;
-
     public Test() {
 
-        long start = System.currentTimeMillis();
-
-        for (int i = 0; i < 100000000; i++) {
-            booleanTest = !booleanTest;
-        }
-
-        long time = System.currentTimeMillis() - start;
-
-        System.out.println("Took " + (time / DIVIDER) + "ms");
-
-        start = System.currentTimeMillis();
-
-        for (int i = 0; i < 100000000; i++) {
-            ATOMIC_TEST = !ATOMIC_TEST;
-        }
-
-        time = System.currentTimeMillis() - start;
-
-        System.out.println("Took " + (time / DIVIDER) + "ms");
+        new Script("test_script.xs");
 
 //        try {
 //            XillaConnection<TestPacket> xillaConnection = new XillaConnection<>("Test", null, 732, 732, TestPacket.class);
