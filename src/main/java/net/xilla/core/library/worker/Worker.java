@@ -3,10 +3,6 @@ package net.xilla.core.library.worker;
 import lombok.Getter;
 import net.xilla.core.library.json.XillaJson;
 import net.xilla.core.library.manager.ManagerObject;
-import net.xilla.core.library.manager.XillaManager;
-import net.xilla.core.library.net.XillaConnection;
-import net.xilla.core.log.LogLevel;
-import net.xilla.core.log.Logger;
 
 import java.util.ArrayList;
 

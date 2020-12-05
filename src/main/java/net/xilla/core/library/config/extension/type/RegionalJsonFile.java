@@ -1,14 +1,10 @@
 package net.xilla.core.library.config.extension.type;
 
-import com.amihaiemil.eoyaml.Yaml;
-import com.amihaiemil.eoyaml.YamlMapping;
-import com.amihaiemil.eoyaml.YamlNode;
 import lombok.Getter;
 import lombok.Setter;
 import net.xilla.core.library.config.ConfigFile;
+import net.xilla.core.library.config.ConfigSection;
 import net.xilla.core.library.json.XillaJson;
-import net.xilla.core.log.LogLevel;
-import net.xilla.core.log.Logger;
 import org.json.simple.JSONObject;
 
 import java.io.File;
@@ -16,13 +12,13 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class JsonFile extends XillaJson implements ConfigFile {
+public class RegionalJsonFile extends XillaJson implements ConfigFile {
 
     @Getter
     @Setter
     private String file = null;
 
-    public JsonFile() {
+    public RegionalJsonFile() {
 
     }
 
@@ -81,8 +77,13 @@ public class JsonFile extends XillaJson implements ConfigFile {
     }
 
     @Override
+    public ConfigSection getSection(String key) {
+        return new ConfigSection(key, new XillaJson(get(key)));
+    }
+
+    @Override
     public ConfigFile create(String file) {
-       JsonFile configFile = duplicate();
+       RegionalJsonFile configFile = duplicate();
        configFile.setFile(file);
        return configFile;
     }
@@ -137,8 +138,8 @@ public class JsonFile extends XillaJson implements ConfigFile {
         return ret;
     }
 
-    public JsonFile duplicate() {
-        JsonFile jsonFile = new JsonFile();
+    public RegionalJsonFile duplicate() {
+        RegionalJsonFile jsonFile = new RegionalJsonFile();
         jsonFile.setFile(file);
         jsonFile.setJson(getJson());
         return jsonFile;

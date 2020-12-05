@@ -2,12 +2,10 @@ package net.xilla.core.script.function;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.xilla.core.script.ScriptException;
 import net.xilla.core.script.ScriptObject;
 import net.xilla.core.script.object.ScriptVariable;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ScriptFunction {
 

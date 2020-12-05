@@ -2,7 +2,6 @@ package net.xilla.core.script;
 
 import net.xilla.core.library.json.SerializedObject;
 import net.xilla.core.library.json.XillaJson;
-import org.json.simple.JSONObject;
 
 public class ScriptObject implements SerializedObject {
 

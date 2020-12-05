@@ -1,8 +1,6 @@
 package net.xilla.core.library.worker;
 
 import lombok.Getter;
-import net.xilla.core.log.LogLevel;
-import net.xilla.core.log.Logger;
 
 import java.util.ArrayList;
 import java.util.List;

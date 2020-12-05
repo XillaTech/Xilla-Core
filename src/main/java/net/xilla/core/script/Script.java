@@ -3,13 +3,11 @@ package net.xilla.core.script;
 import net.xilla.core.log.Logger;
 import net.xilla.core.script.function.FunctionParser;
 import net.xilla.core.script.function.ScriptFunction;
-import net.xilla.core.script.object.ScriptVariable;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 

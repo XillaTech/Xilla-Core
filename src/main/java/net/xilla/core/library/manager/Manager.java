@@ -3,11 +3,10 @@ package net.xilla.core.library.manager;
 import lombok.Getter;
 import lombok.Setter;
 import net.xilla.core.library.config.Config;
+import net.xilla.core.library.config.ConfigSection;
 import net.xilla.core.library.json.XillaJson;
-import net.xilla.core.library.net.XillaConnection;
 import net.xilla.core.log.LogLevel;
 import net.xilla.core.log.Logger;
-import org.json.simple.JSONObject;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -94,21 +93,22 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
     }
 
     protected void load() {
+        config.reload();
         if(clazz != null) {
             for (Object key : getConfig().getJson().getJson().keySet()) {
-                Object obj = getConfig().get(key.toString());
+                ConfigSection section = getConfig().getConfigFile().getSection(key.toString());
 
-                JSONObject json = (JSONObject) obj;
                 T object = get(key.toString());
                 if (object == null) {
-                    object = getObject(new XillaJson(json));
+                    object = getObject(section.getJson());
                     if (object == null) {
                         Logger.log(LogLevel.ERROR, "No valid constructor found for objects in manager " + getName(), getClass());
                     } else {
                         put(object);
                     }
                 } else {
-                    object.loadSerializedData(new XillaJson(json));
+                    object.loadSerializedData(section.getJson());
+                    remove(object);
                     put(object);
                 }
             }
@@ -170,19 +170,18 @@ public abstract class Manager<T extends ManagerObject> extends ManagerObject {
         }
     }
 
-    public T getObject(XillaJson json) {
+    protected T getObject(XillaJson json) {
         Constructor<?>[] constructors = clazz.getConstructors();
         for (Constructor<?> c : constructors) {
             if (c.getParameterTypes().length == 0) {
                 try {
                     T obj = (T)c.newInstance();
                     obj.loadSerializedData(json);
-                    Logger.log(LogLevel.DEBUG, "Loaded object " + obj.getKey() + " - " + obj.getSerializedData().toJSONString(), getClass());
+//                    Logger.log(LogLevel.DEBUG, "Loaded object " + obj.getKey() + " - " + obj.getSerializedData().toJSONString(), getClass());
                     return obj;
                 } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
                     e.printStackTrace();
                 }
-                break;
             }
         }
         return null;

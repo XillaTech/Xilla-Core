@@ -1,14 +1,10 @@
-package net.xilla.spigotcore.tool;
+package net.xilla.core.library.config;
 
 import lombok.Getter;
-import net.xilla.core.library.config.Config;
-import net.xilla.core.library.config.ConfigManager;
 import net.xilla.core.library.json.XillaJson;
-import net.xilla.core.log.LogLevel;
-import net.xilla.core.log.Logger;
-import net.xilla.spigotcore.manager.MCObject;
+import net.xilla.core.library.manager.ManagerObject;
 
-public class Settings extends MCObject {
+public class Settings extends ManagerObject {
 
     @Getter
     private Config config;

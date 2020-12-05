@@ -1,7 +1,6 @@
 package net.xilla.core.library.worker;
 
 import lombok.Getter;
-import net.xilla.core.library.config.ConfigManager;
 import net.xilla.core.library.manager.Manager;
 
 public class WorkerManager extends Manager<Worker> {

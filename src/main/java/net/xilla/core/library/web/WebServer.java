@@ -1,19 +1,11 @@
-package web;
+package net.xilla.core.library.web;
 
 import lombok.Getter;
 import lombok.Setter;
 import net.xilla.core.log.LogLevel;
 import net.xilla.core.log.Logger;
 
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
@@ -42,28 +34,27 @@ public class WebServer {
     @Setter
     private boolean isRunning = true;
 
+    @Getter
+    @Setter
+    private boolean verbose = false;
+
+    private ServerSocket serverConnect;
+
     private ExecutorService executor;
 
-    // verbose mode
-    private final boolean verbose = true;
-
-    public static void main(String[] args) {
-        try {
-            new WebServer(8080, 10);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+    private int port;
 
     public WebServer(int port, int threads) throws IOException {
-        ServerSocket serverConnect = new ServerSocket(port);
+        serverConnect = new ServerSocket(port);
 
         this.executor = Executors.newFixedThreadPool(threads);
+        this.port = port;
+    }
 
+    public void start() throws IOException {
         if(verbose) {
             Logger.log(LogLevel.INFO, "Server started. Listening for connections on port : " + port, getClass());
         }
-
         while (isRunning) {
             Socket connect = serverConnect.accept();
 

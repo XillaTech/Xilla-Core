@@ -26,6 +26,9 @@ public class XillaJson extends XillaLibrary {
     }
 
     public <T> T get(String key) {
+        if(key == null || !json.containsKey(key)) {
+            return null;
+        }
        return (T)json.get(key);
     }
 

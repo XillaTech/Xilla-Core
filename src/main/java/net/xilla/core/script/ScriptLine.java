@@ -1,7 +1,6 @@
 package net.xilla.core.script;
 
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import net.xilla.core.script.function.ScriptExecutor;
 import net.xilla.core.script.function.ScriptFunction;
 import net.xilla.core.script.object.ScriptVariable;

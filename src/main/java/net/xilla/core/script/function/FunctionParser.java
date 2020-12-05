@@ -1,14 +1,11 @@
 package net.xilla.core.script.function;
 
-import net.xilla.core.log.LogLevel;
 import net.xilla.core.log.Logger;
 import net.xilla.core.script.ScriptException;
 import net.xilla.core.script.ScriptLine;
 import net.xilla.core.script.ScriptObject;
-import net.xilla.core.script.object.ScriptVariable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class FunctionParser {

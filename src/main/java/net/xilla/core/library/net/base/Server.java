@@ -1,6 +1,5 @@
 package net.xilla.core.library.net.base;
 
-import net.xilla.core.library.net.ResponseType;
 import net.xilla.core.library.worker.Worker;
 import net.xilla.core.log.Logger;
 
@@ -8,7 +7,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public abstract class Server extends Worker {
 

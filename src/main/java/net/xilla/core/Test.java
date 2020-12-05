@@ -1,19 +1,6 @@
-import net.xilla.core.library.manager.ManagerObject;
-import net.xilla.core.library.net.ConnectionData;
-import net.xilla.core.library.net.XillaConnection;
-import net.xilla.core.library.net.manager.packet.PacketManager;
-import net.xilla.core.log.LogLevel;
-import net.xilla.core.log.Logger;
-import net.xilla.core.script.Script;
-import server.TestPacket;
-import test.Test1;
-import test.Test2;
+package net.xilla.core;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
+import net.xilla.core.script.Script;
 
 public class Test {
 
@@ -23,11 +10,15 @@ public class Test {
 
     public Test() {
 
-        new Script("test_script.xs");
+        try {
+            new Script("test_script.xs").run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 //        try {
-//            XillaConnection<TestPacket> xillaConnection = new XillaConnection<>("Test", null, 732, 732, TestPacket.class);
-//            Logger.log(LogLevel.INFO, "Starting the server...", Test.class);
+//            XillaConnection<TestPacket> xillaConnection = new XillaConnection<>("net.xilla.core.Test", null, 732, 732, TestPacket.class);
+//            Logger.log(LogLevel.INFO, "Starting the server...", net.xilla.core.Test.class);
 //            xillaConnection.getServer().start();
 //            try {
 //                Thread.sleep(1000);
@@ -35,7 +26,7 @@ public class Test {
 //                ex.printStackTrace();
 //            }
 //
-//            Logger.log(LogLevel.INFO, "Starting the client...", Test.class);
+//            Logger.log(LogLevel.INFO, "Starting the client...", net.xilla.core.Test.class);
 //            xillaConnection.getClient().start();
 //
 //            try {
@@ -44,9 +35,9 @@ public class Test {
 //                ex.printStackTrace();
 //            }
 //
-//            TestPacket object = new TestPacket(UUID.randomUUID().toString(), "Test data, woah.");
+//            TestPacket object = new TestPacket(UUID.randomUUID().toString(), "net.xilla.core.Test data, woah.");
 //
-//            Logger.log(LogLevel.INFO, "Sending test object " + object.getKey() + " - " + object.getSerializedData().toJSONString(), Test.class);
+//            Logger.log(LogLevel.INFO, "Sending test object " + object.getKey() + " - " + object.getSerializedData().toJSONString(), net.xilla.core.Test.class);
 //
 //            xillaConnection.addMessage(new ConnectionData<>(object, xillaConnection));
 //        } catch (IOException e) {
