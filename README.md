@@ -4,9 +4,10 @@ Currently it is coded in java but there are plans in the distant future to add o
 <br><br>
 # Some of the tools that currently exist
 - Advanced and entirely customizable logging
-- Object management with reflection base file storage
-- Config file support
-- Json support
+- Object management with customizable file storage
+- Config file support + Settings file support (Configs store general data, Settings store user controllable settings)
+- Json support + Interface based support for injecting other config extensions
+- Reflection Cache + Automatic Serialization / Deserialization
 <br><br>
 # Some upcoming experimental features
 - [Experimental] Server/client socket connection. This allows for a controller/server structure.
