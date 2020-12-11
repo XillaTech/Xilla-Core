@@ -7,11 +7,125 @@ import net.xilla.core.library.json.SerializedObject;
 import net.xilla.core.library.json.XillaJson;
 import net.xilla.core.log.LogLevel;
 import net.xilla.core.log.Logger;
+import net.xilla.core.reflection.Reflection;
+import net.xilla.core.reflection.ReflectionManager;
 import org.json.simple.JSONObject;
 
 import java.lang.reflect.Field;
 
-public abstract class ManagerObject extends XillaLibrary implements SerializedObject {
+public abstract class ManagerObject implements XillaLibrary, SerializedObject {
+
+    @Setter
+    @Getter
+    private Object key;
+
+    @Getter
+    @Setter
+    private Manager<Object, ManagerObject> manager;
+
+    @Getter
+    @Setter
+    private String extension = "none";
+
+    public ManagerObject() {
+    }
+
+    public ManagerObject(Object key, Manager manager) {
+        init(key, manager);
+    }
+
+    public ManagerObject(Object key, String manager) {
+        init(key, manager);
+    }
+
+    public void init(Object key, String manager) {
+        init(key, XillaManager.getInstance().get(manager));
+    }
+
+    public void init(Object key, Manager manager) {
+        setKey(key);
+        setManager(manager);
+
+        if(manager != null && manager.getConfig() != null) {
+            this.extension = manager.getConfig().getConfigFile().getExtension();
+        }
+
+        postSetup();
+    }
+
+    public void postSetup() {
+
+    }
+
+    public void updateKey(String key) {
+        this.key = key;
+        manager.getData().remove(key);
+        manager.getData().put(key, this);
+    }
+
+    @Override
+    public void loadSerializedData(XillaJson json) {
+
+        if(json.containsKey("file-extension")) {
+            json.getJson().remove("file-extension");
+        }
+
+        Class<?> clazz = getClass();
+        while (clazz.getSuperclass() != null && !clazz.getName().equals("ManagerObject")) {
+            for (Field field : clazz.getDeclaredFields()) {
+                if (field.getAnnotation(StoredData.class) != null) {
+                    Object input = json.get(field.getName());
+
+                    if(input != null) {
+
+                        Reflection reflection = ReflectionManager.getInstance().get(field.getType());
+
+                        boolean locked = false;
+                        if (!field.isAccessible()) {
+                            field.setAccessible(true);
+                            locked = true;
+                        }
+
+                        try {
+                            Object obj = field.get(this);
+                            if(obj instanceof SerializedObject) {
+                                reflection = ReflectionManager.getInstance().get(SerializedObject.class);
+                            }
+
+                            if(reflection != null) {
+                                try {
+                                    field.set(this, reflection.loadFromSerializedData(this, field, input));
+                                } catch (Exception ex) {
+                                    Logger.log(LogLevel.ERROR, "Failed to set variable " + field.getName(), getClass());
+                                }
+                            }
+                            return;
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
+
+
+
+                        try {
+                            field.set(this, input);
+                        } catch (Exception ex) {
+                            Logger.log(LogLevel.ERROR, "Failed to load variable " + field.getName(), getClass());
+                        }
+
+
+                        if(locked) {
+                            field.setAccessible(false);
+                        }
+                    }
+                }
+            }
+            clazz = clazz.getSuperclass();
+        }
+
+        if(json.containsKey("key") && json.containsKey("manager")) {
+            init(json.get("key"), json.get("manager").toString());
+        }
+    }
 
     @Override
     public XillaJson getSerializedData() {
@@ -22,35 +136,57 @@ public abstract class ManagerObject extends XillaLibrary implements SerializedOb
             while (clazz.getSuperclass() != null && !clazz.getSuperclass().getName().equals("ManagerObject")) {
                 for (Field field : clazz.getDeclaredFields()) {
                     if (field.getAnnotation(StoredData.class) != null) {
-                        Object object;
+                        Reflection reflection = ReflectionManager.getInstance().get(field.getType());
+
+                        boolean locked = false;
                         if (!field.isAccessible()) {
                             field.setAccessible(true);
+                            locked = true;
+                        }
 
-                            object = field.get(this);
+                        try {
+                            Object obj = field.get(this);
+                            if(obj instanceof SerializedObject) {
+                                reflection = ReflectionManager.getInstance().get(SerializedObject.class);
+                            }
+                        } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
 
+                        Object object = field.get(this);
+                        if(object != null) {
+                            if (reflection != null) {
+                                json.put(field.getName(), reflection.getSerializedData(this, field, object));
+                            } else {
+                                json.put(field.getName(), object);
+                            }
+                        }
+
+                        if(locked) {
                             field.setAccessible(false);
-                        } else {
-                            object = field.get(this);
                         }
 
-                        if (object instanceof SerializedObject) {
-                            json.put(field.getName(), ((SerializedObject) object).getSerializedData().getJson());
-                        } else {
-                            json.put(field.getName(), object);
-                        }
                     }
                 }
                 clazz = clazz.getSuperclass();
             }
 
-            if(getManager() != null) {
-                json.put("key", getKey());
+            if(manager != null) {
+                if (manager.isContainsIdentifiers()) {
+                    if (getKey() != null) {
+                        json.put("key", getKey());
+                    }
+
+                    if (getManager() != null) {
+                        json.put("manager", getManager().getKey());
+                    }
+                }
             }
 
-            if(getManager() != null) {
-                json.put("manager", getManager().getKey());
+            if(json.containsKey("file-extension")) {
+                json.getJson().remove("file-extension");
             }
-            System.out.println(json.getJson());
+
             return json;
         } catch (IllegalAccessException e) {
             e.printStackTrace();
@@ -59,113 +195,7 @@ public abstract class ManagerObject extends XillaLibrary implements SerializedOb
     }
 
     @Override
-    public void loadSerializedData(XillaJson json) {
-        if(json.containsKey("key")) {
-            setKey(json.get("key"));
-        }
-        if(json.containsKey("manager")) {
-            setManager(XillaManager.getInstance().get(json.get("manager")));
-        }
-
-        Class<?> clazz = getClass();
-        while (clazz.getSuperclass() != null && !clazz.getName().equals("ManagerObject")) {
-            for (Field field : clazz.getDeclaredFields()) {
-                if (field.getAnnotation(StoredData.class) != null) {
-                    try {
-                        Object input = json.get(field.getName());
-
-                        if(input != null) {
-                            if (!field.isAccessible()) {
-                                field.setAccessible(true);
-
-                                Object object = field.get(this);
-
-                                if (field.getType().isAssignableFrom(Long.class)) {
-                                    field.set(this, Long.parseLong(input.toString()));
-                                } else if (field.getType().isAssignableFrom(Integer.class)) {
-                                    field.set(this, Integer.parseInt(input.toString()));
-                                } else if (field.getType().isAssignableFrom(Double.class)) {
-                                    field.set(this, Double.parseDouble(input.toString()));
-                                } else if (field.getType().isAssignableFrom(Float.class)) {
-                                    field.set(this, Float.parseFloat(input.toString()));
-                                } else if (field.getType().isAssignableFrom(Byte.class)) {
-                                    field.set(this, Byte.parseByte(input.toString()));
-                                } else if (field.getType().isAssignableFrom(Short.class)) {
-                                    field.set(this, Short.parseShort(input.toString()));
-                                } else if (object instanceof SerializedObject) {
-                                    SerializedObject serializedObject = ((SerializedObject) object);
-                                    serializedObject.loadSerializedData(new XillaJson((JSONObject)input));
-                                } else {
-                                    try {
-                                        field.set(this, input);
-                                    } catch (Exception ex) {
-                                        Logger.log(LogLevel.ERROR, "Failed to load variable " + field.getName() + "!", getClass());
-                                        Logger.log(ex, getClass());
-                                    }
-                                }
-
-                                field.setAccessible(false);
-                            } else {
-                                Object object = field.get(this);
-
-                                if (field.getType().isAssignableFrom(Long.class)) {
-                                    field.set(this, Long.parseLong(input.toString()));
-                                } else if (field.getType().isAssignableFrom(Integer.class)) {
-                                    field.set(this, Integer.parseInt(input.toString()));
-                                } else if (field.getType().isAssignableFrom(Double.class)) {
-                                    field.set(this, Double.parseDouble(input.toString()));
-                                } else if (field.getType().isAssignableFrom(Float.class)) {
-                                    field.set(this, Float.parseFloat(input.toString()));
-                                } else if (field.getType().isAssignableFrom(Byte.class)) {
-                                    field.set(this, Byte.parseByte(input.toString()));
-                                } else if (field.getType().isAssignableFrom(Short.class)) {
-                                    field.set(this, Short.parseShort(input.toString()));
-                                } else if (field.getType().isAssignableFrom(SerializedObject.class)) {
-                                    if (object == null) {
-                                        Logger.log(LogLevel.ERROR, "To load a serialized object, it must already be initialized.", getClass());
-                                    } else {
-                                        SerializedObject serializedObject = ((SerializedObject) object);
-                                        serializedObject.loadSerializedData(new XillaJson((JSONObject)input));
-                                    }
-                                } else {
-                                    field.set(this, input);
-                                }
-                            }
-                        }
-                    } catch (IllegalAccessException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-            clazz = clazz.getSuperclass();
-        }
+    public String toString() {
+        return getKey().toString();
     }
-
-    @Setter
-    @Getter
-    private String key;
-
-    @Getter
-    @Setter
-    private Manager manager;
-
-    public ManagerObject() {
-    }
-
-    public ManagerObject(String key, Manager manager) {
-        this.key = key;
-        this.manager = manager;
-    }
-
-    public ManagerObject(String key, String manager) {
-        this.key = key;
-        this.manager = XillaManager.getInstance().get(manager);
-    }
-
-    public void updateKey(String key) {
-        this.key = key;
-        manager.getData().remove(key);
-        manager.getData().put(key, this);
-    }
-
 }

@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.xilla.core.library.manager.Manager;
 
-public class ConfigManager extends Manager<Config> {
+public class ConfigManager extends Manager<String, Config> {
 
     @Getter
     private static ConfigManager instance = new ConfigManager();
@@ -19,16 +19,6 @@ public class ConfigManager extends Manager<Config> {
 
     @Override
     protected void load() {
-
-    }
-
-    @Override
-    protected void objectAdded(Config obj) {
-
-    }
-
-    @Override
-    protected void objectRemoved(Config obj) {
 
     }
 

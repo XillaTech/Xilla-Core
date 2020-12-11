@@ -1,33 +1,68 @@
 package net.xilla.core.library.manager;
 
+import lombok.Getter;
+
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
-public class ManagerCache<T extends ManagerObject> {
+public class ManagerCache<Key, Value extends ManagerObject>{
 
-    private HashMap<String, T> cache;
+    @Getter
+    private ConcurrentHashMap<Key, Value> cache = new ConcurrentHashMap<>();
 
-    public ManagerCache() {
-        cache = new HashMap<>();
-    }
-
-    public void putObject(String key, T object) {
+    public void putObject(Key key, Value object) {
         cache.put(key, object);
     }
 
-    public boolean isCached(String key) {
+    public boolean isCached(Key key) {
         return cache.containsKey(key);
     }
 
-    public T getObject(String key) {
+    public int size() {
+        return cache.size();
+    }
+
+    public boolean isEmpty() {
+        return size() == 0;
+    }
+
+    public boolean containsKey(Key key) {
+        return cache.containsKey(key);
+    }
+
+    public boolean containsValue(Object value) {
+        return false;
+    }
+
+    public Value get(Key key) {
         return cache.get(key);
     }
 
-    public void removeObject(String key) {
-        cache.remove(key);
+    public Value put(Key key, Value value) {
+        return cache.put(key, value);
     }
 
-    public HashMap<String, T> getCache() {
-        return cache;
+    public Value remove(Key key) {
+        return cache.remove(key);
+    }
+
+    public void putAll(Map<? extends Key, ? extends Value> m) {
+        cache.putAll(m);
+    }
+
+    public void clear() {
+        cache.clear();
+    }
+
+    public Set<Key> keySet() {
+        return cache.keySet();
+    }
+
+    public Collection<Value> values() {
+        return cache.values();
     }
 
 }

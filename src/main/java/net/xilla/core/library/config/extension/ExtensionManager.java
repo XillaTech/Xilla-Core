@@ -4,7 +4,7 @@ import lombok.Getter;
 import net.xilla.core.library.config.extension.type.JsonFile;
 import net.xilla.core.library.manager.Manager;
 
-public class ExtensionManager extends Manager<ConfigExtension> {
+public class ExtensionManager extends Manager<String, ConfigExtension> {
 
     @Getter
     private static ExtensionManager instance = new ExtensionManager();

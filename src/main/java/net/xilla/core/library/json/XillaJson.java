@@ -11,7 +11,7 @@ import org.json.simple.parser.ParseException;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class XillaJson extends XillaLibrary {
+public class XillaJson implements XillaLibrary {
 
     @Setter
     @Getter

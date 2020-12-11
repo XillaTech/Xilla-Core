@@ -78,6 +78,11 @@ public class JsonFile extends XillaJson implements ConfigFile {
     }
 
     @Override
+    public String getExtension() {
+        return "json";
+    }
+
+    @Override
     public ConfigFile create(String f) {
        JsonFile configFile = new JsonFile();
        configFile.setFile(f);

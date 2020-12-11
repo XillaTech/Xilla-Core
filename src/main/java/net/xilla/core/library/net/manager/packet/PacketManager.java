@@ -2,7 +2,7 @@ package net.xilla.core.library.net.manager.packet;
 
 import net.xilla.core.library.manager.Manager;
 
-public class PacketManager extends Manager<Packet> {
+public class PacketManager extends Manager<String, Packet> {
 
     private static PacketManager instance = new PacketManager();
 
@@ -11,22 +11,7 @@ public class PacketManager extends Manager<Packet> {
     }
 
     public PacketManager() {
-        super("PacketManager");
-    }
-
-    @Override
-    protected void load() {
-
-    }
-
-    @Override
-    protected void objectAdded(Packet obj) {
-
-    }
-
-    @Override
-    protected void objectRemoved(Packet obj) {
-
+        super("PacketManager", Packet.class);
     }
 
 }

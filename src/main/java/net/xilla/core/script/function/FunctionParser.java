@@ -22,7 +22,6 @@ public class FunctionParser {
         print.addExecutor((line, variables) -> {
             String data = variables[0].get().toString();
             if(data.startsWith("\"") && data.endsWith("\"")) {
-                System.out.println(data.substring(1, data.length() - 1));
             } else {
                 Logger.log(new ScriptException("There is no valid data inside the print statement on line " + line), this.getClass());
             }

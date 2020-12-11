@@ -82,6 +82,11 @@ public class RegionalJsonFile extends XillaJson implements ConfigFile {
     }
 
     @Override
+    public String getExtension() {
+        return "json";
+    }
+
+    @Override
     public ConfigFile create(String file) {
        RegionalJsonFile configFile = duplicate();
        configFile.setFile(file);

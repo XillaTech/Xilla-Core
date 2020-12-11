@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
 public class WebServer {
 
     @Getter
-    private final File webRoot = new File(".");
+    private File webRoot;
 
     @Getter
     @Setter
@@ -44,7 +44,14 @@ public class WebServer {
 
     private int port;
 
-    public WebServer(int port, int threads) throws IOException {
+    public WebServer(String directory, int port, int threads) throws IOException {
+
+        if(directory == null || directory.isEmpty()) {
+            directory = System.getProperty("user.dir");
+        }
+
+        this.webRoot = new File(directory);
+
         serverConnect = new ServerSocket(port);
 
         this.executor = Executors.newFixedThreadPool(threads);
@@ -88,7 +95,7 @@ public class WebServer {
             StringTokenizer parse = new StringTokenizer(input);
             String method = parse.nextToken().toUpperCase(); // we get the HTTP method of the client
             // we get file requested
-            fileRequested = parse.nextToken().toLowerCase();
+            fileRequested = parse.nextToken();
 
             // we support only GET and HEAD methods, we check
             if (!method.equals("GET")  &&  !method.equals("HEAD")) {
@@ -130,7 +137,7 @@ public class WebServer {
 
                     // send HTTP Headers
                     out.println("HTTP/1.1 200 OK");
-                    out.println("Server: Java HTTP Server from SSaurel : 1.0");
+                    out.println("Server: Java HTTP Server from Xilla : 1.0");
                     out.println("Date: " + new Date());
                     out.println("Content-type: " + content);
                     out.println("Content-length: " + fileLength);
@@ -148,6 +155,7 @@ public class WebServer {
 
         } catch (FileNotFoundException fnfe) {
             try {
+                Logger.log(fnfe, getClass());
                 fileNotFound(out, dataOut, fileRequested);
             } catch (IOException ioe) {
                 Logger.log(LogLevel.ERROR, "Error with file not found exception : " + ioe.getMessage(), getClass());
@@ -159,10 +167,25 @@ public class WebServer {
             Logger.log(ioe, getClass());
         } finally {
             try {
-                in.close();
-                out.close();
                 dataOut.close();
+            } catch (Exception e) {
+                Logger.log(LogLevel.ERROR, "Error closing stream : " + e.getMessage(), getClass());
+                Logger.log(e, getClass());
+            }
+            try {
                 connect.close(); // we close socket connection
+            } catch (Exception e) {
+                Logger.log(LogLevel.ERROR, "Error closing stream : " + e.getMessage(), getClass());
+                Logger.log(e, getClass());
+            }
+            try {
+                out.close();
+            } catch (Exception e) {
+                Logger.log(LogLevel.ERROR, "Error closing stream : " + e.getMessage(), getClass());
+                Logger.log(e, getClass());
+            }
+            try {
+                in.close();
             } catch (Exception e) {
                 Logger.log(LogLevel.ERROR, "Error closing stream : " + e.getMessage(), getClass());
                 Logger.log(e, getClass());
@@ -205,7 +228,7 @@ public class WebServer {
         byte[] fileData = readFileData(file, fileLength);
 
         out.println("HTTP/1.1 404 File Not Found");
-        out.println("Server: Java HTTP Server from SSaurel : 1.0");
+        out.println("Server: Java HTTP Server from Xilla : 1.0");
         out.println("Date: " + new Date());
         out.println("Content-type: " + content);
         out.println("Content-length: " + fileLength);

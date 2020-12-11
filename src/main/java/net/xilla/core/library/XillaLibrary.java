@@ -4,13 +4,13 @@ package net.xilla.core.library;
  * Used to provide backend tools and functions to all
  * the classes we create.
  */
-public class XillaLibrary {
+public interface XillaLibrary {
 
-    public double convertToHours(long time) {
+    default double convertToHours(long time) {
         return time / 1000.0 / 60.0 / 60.0;
     }
 
-    public String convertToTime(long time) {
+    default String convertToTime(long time) {
         long seconds = time / 1000;
 
         long minutes = seconds / 60;
@@ -60,11 +60,11 @@ public class XillaLibrary {
         return response;
     }
 
-    public long convertToMs(int hours) {
+    default long convertToMs(int hours) {
         return hours * 1000 * 60 * 60;
     }
 
-    public long getTime(String str) {
+    default long getTime(String str) {
         long time = 0;
 
         for(String section : str.toLowerCase().split(",")) {

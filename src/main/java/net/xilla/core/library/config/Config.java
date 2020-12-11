@@ -46,8 +46,6 @@ public class Config extends ManagerObject {
             }
             builder.append("json");
 
-            System.out.println();
-
             this.file = builder.toString();
             setKey(file);
             extension = ExtensionManager.getInstance().get("json");
@@ -81,7 +79,11 @@ public class Config extends ManagerObject {
     }
 
     public XillaJson getJson() {
-        return configFile.getIndex();
+        XillaJson json = configFile.getIndex();
+
+        json.put("file-extension", configFile.getExtension());
+
+        return json;
     }
 
     public <T> T get(String key) {
@@ -134,6 +136,7 @@ public class Config extends ManagerObject {
 
         json.put("file", file);
         json.put("index", configFile.getIndex());
+        json.put("file-extension", configFile.getExtension());
 
         return json;
     }

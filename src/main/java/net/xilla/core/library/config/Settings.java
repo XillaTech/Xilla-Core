@@ -10,8 +10,10 @@ public class Settings extends ManagerObject {
     private Config config;
 
     public Settings(String file) {
+        super(file, "");
         this.config = new Config(file);
         ConfigManager.getInstance().put(config);
+        setExtension(config.getConfigFile().getExtension());
     }
 
     public void startup() {

@@ -11,5 +11,8 @@
         <module name="Xilla-Core" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="Xilla-Core" target="8" />
+    </bytecodeTargetLevel>
   </component>
 </project>

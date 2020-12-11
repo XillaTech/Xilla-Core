@@ -2,7 +2,7 @@ package net.xilla.core.library.manager;
 
 import lombok.Getter;
 
-public class XillaManager extends Manager<Manager> {
+public class XillaManager extends Manager<String, Manager> {
 
     @Getter
     private static XillaManager instance = new XillaManager();

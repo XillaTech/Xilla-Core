@@ -30,4 +30,6 @@ public interface ConfigFile {
 
     ConfigSection getSection(String key);
 
+    String getExtension();
+
 }

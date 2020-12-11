@@ -6,7 +6,7 @@ import net.xilla.core.library.XillaLibrary;
 import net.xilla.core.library.json.SerializedObject;
 import net.xilla.core.library.json.XillaJson;
 
-public class ScriptVariable<T> extends XillaLibrary implements SerializedObject {
+public class ScriptVariable<T> implements XillaLibrary, SerializedObject {
 
     private Object variable;
 
