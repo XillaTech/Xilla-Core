@@ -1,6 +1,7 @@
 package net.xilla.core.reflection;
 
 import lombok.Getter;
+import net.xilla.core.library.config.ConfigFile;
 import net.xilla.core.library.json.SerializedObject;
 import net.xilla.core.library.json.XillaJson;
 import net.xilla.core.library.manager.Manager;
@@ -26,15 +27,28 @@ public class ReflectionManager extends Manager<Class, Reflection> {
     }
 
     public void initialize() {
+        // STRING
+        put(new Reflection<String>(String.class) {
+            @Override
+            public String loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
+                return object.toString();
+            }
+
+            @Override
+            public Object getSerializedData(ConfigFile file, Object obj, Field field, String object) {
+                return object;
+            }
+        });
+
         // INTEGER
         put(new Reflection<Integer>(Integer.class) {
             @Override
-            public Integer loadFromSerializedData(Object obj, Field field, Object object) {
+            public Integer loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
                 return Integer.parseInt(object.toString());
             }
 
             @Override
-            public Object getSerializedData(Object obj, Field field, Integer object) {
+            public Object getSerializedData(ConfigFile file, Object obj, Field field, Integer object) {
                 return object;
             }
         });
@@ -42,12 +56,12 @@ public class ReflectionManager extends Manager<Class, Reflection> {
         // LONG
         put(new Reflection<Long>(Long.class) {
             @Override
-            public Long loadFromSerializedData(Object obj, Field field, Object object) {
+            public Long loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
                 return Long.parseLong(object.toString());
             }
 
             @Override
-            public Object getSerializedData(Object obj, Field field, Long object) {
+            public Object getSerializedData(ConfigFile file, Object obj, Field field, Long object) {
                 return object;
             }
         });
@@ -55,12 +69,12 @@ public class ReflectionManager extends Manager<Class, Reflection> {
         // DOUBLE
         put(new Reflection<Double>(Double.class) {
             @Override
-            public Double loadFromSerializedData(Object obj, Field field, Object object) {
+            public Double loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
                 return Double.parseDouble(object.toString());
             }
 
             @Override
-            public Object getSerializedData(Object obj, Field field, Double object) {
+            public Object getSerializedData(ConfigFile file, Object obj, Field field, Double object) {
                 return object;
             }
         });
@@ -68,12 +82,12 @@ public class ReflectionManager extends Manager<Class, Reflection> {
         // FLOAT
         put(new Reflection<Float>(Float.class) {
             @Override
-            public Float loadFromSerializedData(Object obj, Field field, Object object) {
+            public Float loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
                 return Float.parseFloat(object.toString());
             }
 
             @Override
-            public Object getSerializedData(Object obj, Field field, Float object) {
+            public Object getSerializedData(ConfigFile file, Object obj, Field field, Float object) {
                 return object;
             }
         });
@@ -81,12 +95,12 @@ public class ReflectionManager extends Manager<Class, Reflection> {
         // BYTE
         put(new Reflection<Byte>(Byte.class) {
             @Override
-            public Byte loadFromSerializedData(Object obj, Field field, Object object) {
+            public Byte loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
                 return Byte.parseByte(object.toString());
             }
 
             @Override
-            public Object getSerializedData(Object obj, Field field, Byte object) {
+            public Object getSerializedData(ConfigFile file, Object obj, Field field, Byte object) {
                 return object;
             }
         });
@@ -94,12 +108,12 @@ public class ReflectionManager extends Manager<Class, Reflection> {
         // SHORT
         put(new Reflection<Short>(Short.class) {
             @Override
-            public Short loadFromSerializedData(Object obj, Field field, Object object) {
+            public Short loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
                 return Short.parseShort(object.toString());
             }
 
             @Override
-            public Object getSerializedData(Object obj, Field field, Short object) {
+            public Object getSerializedData(ConfigFile file, Object obj, Field field, Short object) {
                 return object;
             }
         });
@@ -108,7 +122,7 @@ public class ReflectionManager extends Manager<Class, Reflection> {
         put(new Reflection<SerializedObject>(SerializedObject.class) {
 
             @Override
-            public SerializedObject loadFromSerializedData(Object obj, Field field, Object object) {
+            public SerializedObject loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
                 try {
                     SerializedObject so = (SerializedObject)field.get(obj);
                     so.loadSerializedData(new XillaJson((JSONObject) object));
@@ -121,7 +135,7 @@ public class ReflectionManager extends Manager<Class, Reflection> {
             }
 
             @Override
-            public Object getSerializedData(Object obj, Field field, SerializedObject object) {
+            public Object getSerializedData(ConfigFile file, Object obj, Field field, SerializedObject object) {
                 return object.getSerializedData();
             }
         });

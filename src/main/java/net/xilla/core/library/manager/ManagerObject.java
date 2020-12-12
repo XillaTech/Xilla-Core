@@ -3,6 +3,8 @@ package net.xilla.core.library.manager;
 import lombok.Getter;
 import lombok.Setter;
 import net.xilla.core.library.XillaLibrary;
+import net.xilla.core.library.config.Config;
+import net.xilla.core.library.config.ConfigFile;
 import net.xilla.core.library.json.SerializedObject;
 import net.xilla.core.library.json.XillaJson;
 import net.xilla.core.log.LogLevel;
@@ -75,9 +77,7 @@ public abstract class ManagerObject implements XillaLibrary, SerializedObject {
             for (Field field : clazz.getDeclaredFields()) {
                 if (field.getAnnotation(StoredData.class) != null) {
                     Object input = json.get(field.getName());
-
                     if(input != null) {
-
                         Reflection reflection = ReflectionManager.getInstance().get(field.getType());
 
                         boolean locked = false;
@@ -86,36 +86,50 @@ public abstract class ManagerObject implements XillaLibrary, SerializedObject {
                             locked = true;
                         }
 
-                        try {
-                            Object obj = field.get(this);
-                            if(obj instanceof SerializedObject) {
-                                reflection = ReflectionManager.getInstance().get(SerializedObject.class);
-                            }
+                        if(reflection != null) {
+                            try {
+                                Object obj = field.get(this);
+                                if (obj instanceof SerializedObject) {
+                                    reflection = ReflectionManager.getInstance().get(SerializedObject.class);
+                                }
 
-                            if(reflection != null) {
+                                ConfigFile file = null;
+                                Manager manager = getManager();
+                                if(manager != null) {
+                                    Config config = manager.getConfig();
+                                    if(config != null) {
+                                        file = config.getConfigFile();
+                                    }
+                                }
+
                                 try {
-                                    field.set(this, reflection.loadFromSerializedData(this, field, input));
+                                    Object loaded = reflection.loadFromSerializedData(file, this, field, input);
+                                    if(loaded != null) {
+                                        field.set(this, loaded);
+                                    } else {
+                                        throw new Exception("Failed to load serialized data, as it returned null");
+                                    }
                                 } catch (Exception ex) {
                                     Logger.log(LogLevel.ERROR, "Failed to set variable " + field.getName(), getClass());
+                                    Logger.log(ex, getClass());
                                 }
+
+                            } catch (IllegalAccessException e) {
+                                e.printStackTrace();
                             }
-                            return;
-                        } catch (IllegalAccessException e) {
-                            e.printStackTrace();
+                        } else {
+                            try {
+                                field.set(this, input);
+                            } catch (Exception ex) {
+                                Logger.log(LogLevel.ERROR, "Failed to load variable " + field.getName(), getClass());
+                                Logger.log(ex, getClass());
+                            }
                         }
-
-
-
-                        try {
-                            field.set(this, input);
-                        } catch (Exception ex) {
-                            Logger.log(LogLevel.ERROR, "Failed to load variable " + field.getName(), getClass());
-                        }
-
 
                         if(locked) {
                             field.setAccessible(false);
                         }
+
                     }
                 }
             }
@@ -153,10 +167,19 @@ public abstract class ManagerObject implements XillaLibrary, SerializedObject {
                             e.printStackTrace();
                         }
 
+                        ConfigFile file = null;
+                        Manager manager = getManager();
+                        if(manager != null) {
+                            Config config = manager.getConfig();
+                            if(config != null) {
+                                file = config.getConfigFile();
+                            }
+                        }
+
                         Object object = field.get(this);
                         if(object != null) {
                             if (reflection != null) {
-                                json.put(field.getName(), reflection.getSerializedData(this, field, object));
+                                json.put(field.getName(), reflection.getSerializedData(file, this, field, object));
                             } else {
                                 json.put(field.getName(), object);
                             }

@@ -92,7 +92,6 @@ public class Manager<Key, Value extends ManagerObject> extends ManagerObject {
             json.getJson().remove("file-extension");
 
             for (Object key : json.getJson().keySet()) {
-                System.out.println("Loading section " + key.toString());
                 ConfigSection section = getConfig().getConfigFile().getSection(key.toString());
 
                 Value object = get((Key)key);

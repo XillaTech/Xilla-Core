@@ -2,18 +2,14 @@ package net.xilla.core.library.config;
 
 import lombok.Getter;
 import net.xilla.core.library.json.XillaJson;
+import net.xilla.core.library.manager.Manager;
 import net.xilla.core.library.manager.ManagerObject;
 
 public class Settings extends ManagerObject {
 
-    @Getter
-    private Config config;
-
     public Settings(String file) {
-        super(file, "");
-        this.config = new Config(file);
-        ConfigManager.getInstance().put(config);
-        setExtension(config.getConfigFile().getExtension());
+        super(file, new Manager("Settings-" + file, file, Settings.class));
+        setExtension(getManager().getConfig().getConfigFile().getExtension());
     }
 
     public void startup() {
@@ -28,15 +24,15 @@ public class Settings extends ManagerObject {
             Object value = json.getJson().get(key);
 
             if(value != null) {
-                this.config.set(key.toString(), value);
+                getManager().getConfig().set(key.toString(), value);
             }
         }
 
-        this.config.save();
+        getManager().getConfig().save();
     }
 
     public void load() {
-        loadSerializedData(config.getJson());
+        loadSerializedData(getManager().getConfig().getJson());
     }
 
 }
