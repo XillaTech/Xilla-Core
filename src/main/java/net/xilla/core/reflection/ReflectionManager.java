@@ -12,6 +12,7 @@ import org.json.simple.JSONObject;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class ReflectionManager extends Manager<Class, Reflection> {
 
@@ -115,6 +116,19 @@ public class ReflectionManager extends Manager<Class, Reflection> {
             @Override
             public Object getSerializedData(ConfigFile file, Object obj, Field field, Short object) {
                 return object;
+            }
+        });
+
+        // UUID
+        put(new Reflection<UUID>(UUID.class) {
+            @Override
+            public UUID loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
+                return UUID.fromString(object.toString());
+            }
+
+            @Override
+            public Object getSerializedData(ConfigFile file, Object obj, Field field, UUID object) {
+                return object.toString();
             }
         });
 

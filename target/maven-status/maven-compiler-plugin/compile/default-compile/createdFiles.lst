@@ -15,6 +15,7 @@ net/xilla/core/library/config/extension/type/JsonFile.class
 net/xilla/core/library/net/ConnectionData.class
 net/xilla/core/script/ScriptLine.class
 net/xilla/core/library/web/framework/WebPage.class
+net/xilla/core/reflection/ReflectionManager$9.class
 net/xilla/core/log/Log.class
 net/xilla/core/library/config/extension/type/RegionalJsonFile.class
 net/xilla/core/script/object/ScriptVariable.class

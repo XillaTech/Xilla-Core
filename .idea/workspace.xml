@@ -6,15 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="9e45aae0-c2df-41fa-9141-1db6ab72db40" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/xilla/core/library/config/Settings.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/xilla/core/library/config/Settings.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/xilla/core/library/manager/Manager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/xilla/core/library/manager/Manager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/xilla/core/library/manager/ManagerObject.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/xilla/core/library/manager/ManagerObject.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/net/xilla/core/reflection/Reflection.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/xilla/core/reflection/Reflection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/net/xilla/core/library/web/WebServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/xilla/core/library/web/WebServer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/net/xilla/core/reflection/ReflectionManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/net/xilla/core/reflection/ReflectionManager.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-archiver/pom.properties" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-archiver/pom.properties" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" beforeDir="false" afterPath="$PROJECT_DIR$/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

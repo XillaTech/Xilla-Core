@@ -205,6 +205,7 @@ public class WebServer {
         try {
             fileIn = new FileInputStream(file);
             fileIn.read(fileData);
+        } catch (Exception ignored) {
         } finally {
             if (fileIn != null)
                 fileIn.close();
