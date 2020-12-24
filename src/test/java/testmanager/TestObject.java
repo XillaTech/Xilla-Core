@@ -1,4 +1,4 @@
-package net.xilla.core.testmanager;
+package testmanager;
 
 import net.xilla.core.library.manager.ManagerObject;
 import net.xilla.core.library.manager.StoredData;

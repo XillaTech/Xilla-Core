@@ -7,11 +7,15 @@ import net.xilla.core.library.json.XillaJson;
 import net.xilla.core.library.manager.Manager;
 import net.xilla.core.log.LogLevel;
 import net.xilla.core.log.Logger;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class ReflectionManager extends Manager<Class, Reflection> {
@@ -132,6 +136,90 @@ public class ReflectionManager extends Manager<Class, Reflection> {
             }
         });
 
+//        // UUID
+//        put(new Reflection<List>(List.class) {
+//            @Override
+//            public List loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
+//                Type type = field.getGenericType();
+//                System.out.println("type: " + type);
+//                if (type instanceof ParameterizedType) {
+//                    ParameterizedType pt = (ParameterizedType) type;
+//                    System.out.println("raw type: " + pt.getRawType());
+//                    System.out.println("owner type: " + pt.getOwnerType());
+//                    System.out.println("actual type args:");
+//                    for (Type t : pt.getActualTypeArguments()) {
+//                        System.out.println("    " + t);
+//                    }
+//                }
+//
+//                System.out.println();
+//
+//                try {
+//                    Object list = field.get(object);
+//                    System.out.println("obj: " + obj);
+//                    System.out.println("obj class: " + obj.getClass());
+//                } catch (IllegalAccessException e) {
+//                    e.printStackTrace();
+//                }
+//                return new ArrayList();
+//            }
+//
+//            @Override
+//            public Object getSerializedData(ConfigFile file, Object o, Field field, List object) {
+//                List<Object> list = new ArrayList<>();
+//                List<Object> data = (List<Object>)object;
+//
+//                for(Object temp : data) {
+//                    Reflection reflection = ReflectionManager.getInstance().get(temp.getClass());
+//
+//                    if(reflection != null) {
+//                        if (temp instanceof SerializedObject) {
+//                            reflection = ReflectionManager.getInstance().get(SerializedObject.class);
+//                        }
+//
+//                        try {
+//                            Object loaded = reflection.loadFromSerializedData(file, this, field, temp);
+//                            if(loaded != null) {
+//                                field.set(this, loaded);
+//                            } else {
+//                                throw new Exception("Failed to load serialized data, as it returned null");
+//                            }
+//                        } catch (Exception ex) {
+//                            Logger.log(LogLevel.ERROR, "Failed to set variable " + field.getName(), getClass());
+//                            Logger.log(ex, getClass());
+//                        }
+//                    } else {
+//                        try {
+//                            Object obj = field.get(this);
+//                            if (obj instanceof SerializedObject) {
+//                                reflection = ReflectionManager.getInstance().get(SerializedObject.class);
+//
+//                                try {
+//                                    Object loaded = reflection.loadFromSerializedData(file, this, field, temp);
+//                                    if(loaded != null) {
+//                                        list.add(loaded);
+//                                    } else {
+//                                        throw new Exception("Failed to load serialized data, as it returned null");
+//                                    }
+//                                } catch (Exception ex) {
+//                                    Logger.log(LogLevel.ERROR, "Failed to set variable " + field.getName(), getClass());
+//                                    Logger.log(ex, getClass());
+//                                }
+//                            }
+//
+//
+//                            list.add(temp);
+//                        } catch (Exception ex) {
+//                            Logger.log(LogLevel.ERROR, "Failed to load variable " + field.getName(), getClass());
+//                            Logger.log(ex, getClass());
+//                        }
+//                    }
+//                }
+//
+//                return list;
+//            }
+//        });
+
         // SERIALIZED OBJECTS / MANAGER OBJECTS
         put(new Reflection<SerializedObject>(SerializedObject.class) {
 
@@ -139,7 +227,7 @@ public class ReflectionManager extends Manager<Class, Reflection> {
             public SerializedObject loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
                 try {
                     SerializedObject so = (SerializedObject)field.get(obj);
-                    so.loadSerializedData(new XillaJson((JSONObject) object));
+                    so.loadSerializedData(new XillaJson(new JSONObject((Map)object)));
                     return so;
                 } catch (IllegalAccessException e) {
                     Logger.log(LogLevel.ERROR, "Error while loading data from serialized object " + field.getName(), getClass());
@@ -150,7 +238,7 @@ public class ReflectionManager extends Manager<Class, Reflection> {
 
             @Override
             public Object getSerializedData(ConfigFile file, Object obj, Field field, SerializedObject object) {
-                return object.getSerializedData();
+                return object.getSerializedData().getJson();
             }
         });
     }

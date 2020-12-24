@@ -61,7 +61,7 @@ public interface XillaLibrary {
     }
 
     default long convertToMs(int hours) {
-        return hours * 1000 * 60 * 60;
+        return (long) hours * 1000 * 60 * 60;
     }
 
     default long getTime(String str) {

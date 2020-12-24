@@ -15,7 +15,7 @@ import org.json.simple.JSONObject;
 
 import java.lang.reflect.Field;
 
-public abstract class ManagerObject implements XillaLibrary, SerializedObject {
+public abstract class ManagerObject implements ObjectInterface {
 
     @Setter
     @Getter
@@ -86,20 +86,25 @@ public abstract class ManagerObject implements XillaLibrary, SerializedObject {
                             locked = true;
                         }
 
+                        ConfigFile file = null;
+                        Manager manager = this.getManager();
+
+                        if(manager == null && json.containsKey("manager")) {
+                            manager = XillaManager.getInstance().get(json.get("manager").toString());
+                        }
+
+                        if (manager != null) {
+                            Config config = manager.getConfig();
+                            if (config != null) {
+                                file = config.getConfigFile();
+                            }
+                        }
+
                         if(reflection != null) {
                             try {
                                 Object obj = field.get(this);
                                 if (obj instanceof SerializedObject) {
                                     reflection = ReflectionManager.getInstance().get(SerializedObject.class);
-                                }
-
-                                ConfigFile file = null;
-                                Manager manager = getManager();
-                                if(manager != null) {
-                                    Config config = manager.getConfig();
-                                    if(config != null) {
-                                        file = config.getConfigFile();
-                                    }
                                 }
 
                                 try {
@@ -119,6 +124,25 @@ public abstract class ManagerObject implements XillaLibrary, SerializedObject {
                             }
                         } else {
                             try {
+                                Object obj = field.get(this);
+                                if (obj instanceof SerializedObject) {
+                                    reflection = ReflectionManager.getInstance().get(SerializedObject.class);
+
+                                    try {
+                                        Object loaded = reflection.loadFromSerializedData(file, this, field, input);
+                                        if(loaded != null) {
+                                            field.set(this, loaded);
+                                            return;
+                                        } else {
+                                            throw new Exception("Failed to load serialized data, as it returned null");
+                                        }
+                                    } catch (Exception ex) {
+                                        Logger.log(LogLevel.ERROR, "Failed to set variable " + field.getName(), getClass());
+                                        Logger.log(ex, getClass());
+                                    }
+                                }
+
+
                                 field.set(this, input);
                             } catch (Exception ex) {
                                 Logger.log(LogLevel.ERROR, "Failed to load variable " + field.getName(), getClass());

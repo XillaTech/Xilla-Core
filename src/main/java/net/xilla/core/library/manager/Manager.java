@@ -13,7 +13,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Manager<Key, Value extends ManagerObject> extends ManagerObject {
+public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
 
     @Getter
     @Setter
@@ -34,32 +34,24 @@ public class Manager<Key, Value extends ManagerObject> extends ManagerObject {
     public Manager(String name) {
         super(name, XillaManager.getInstance());
         this.name = name;
-
-        if(!(this instanceof XillaManager)) {
-            XillaManager.getInstance().put(this);
-        }
     }
 
     public Manager(String name, String file) {
         this(name);
         this.config = new Config(file);
-    }
-
-    public Manager(String name, Class<Value> clazz) {
-        super(name, XillaManager.getInstance());
-        this.name = name;
-
-        this.clazz = clazz;
 
         if(!(this instanceof XillaManager)) {
             XillaManager.getInstance().put(this);
         }
     }
 
-    public Manager(String name, String file, Class<Value> clazz) {
+    public Manager(String name, Class<Value> clazz) {
         this(name);
-        this.config = new Config(file);
+        this.clazz = clazz;
+    }
 
+    public Manager(String name, String file, Class<Value> clazz) {
+        this(name, file);
         this.clazz = clazz;
     }
 
@@ -141,7 +133,7 @@ public class Manager<Key, Value extends ManagerObject> extends ManagerObject {
 
     public void remove(Value object) {
         objectRemoved(object);
-        this.data.remove(object);
+        this.data.remove(object.getKey());
     }
 
     public void removeKey(Key key) {
