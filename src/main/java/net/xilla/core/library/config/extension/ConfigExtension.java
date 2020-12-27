@@ -9,13 +9,10 @@ public class ConfigExtension extends ManagerObject {
     @Getter
     private ConfigFile configFile;
 
-    @Getter
-    private String rawExtension;
 
-    public ConfigExtension(String extension, ConfigFile configFile, String rawExtension) {
+    public ConfigExtension(String extension, ConfigFile configFile) {
         super(extension.toLowerCase(), "ConfigExtension");
 
-        this.rawExtension = rawExtension;
         this.configFile = configFile;
     }
 

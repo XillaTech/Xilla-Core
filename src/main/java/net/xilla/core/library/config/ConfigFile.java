@@ -14,9 +14,11 @@ public interface ConfigFile {
 
     // GETTERS AND SETTERS
 
-    <T> T get(String key);
+    Object get(String key);
 
     void set(String key, Object object);
+
+    void remove(String key);
 
     // INTERNAL CALLS
 
@@ -31,5 +33,11 @@ public interface ConfigFile {
     ConfigSection getSection(String key);
 
     String getExtension();
+
+    // FOR ADVANCED CONFIGS
+
+    default boolean load(String key) { return true; }
+
+    default boolean unload(String key) { return true; }
 
 }

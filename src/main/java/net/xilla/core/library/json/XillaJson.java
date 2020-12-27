@@ -37,6 +37,11 @@ public class XillaJson implements XillaLibrary {
        return this;
     }
 
+    public XillaJson remove(String key) {
+        json.remove(key);
+        return this;
+    }
+
     public boolean containsKey(String key) {
         return json.containsKey(key);
     }

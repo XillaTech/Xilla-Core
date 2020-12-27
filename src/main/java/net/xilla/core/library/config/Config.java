@@ -10,6 +10,7 @@ import net.xilla.core.log.Logger;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
+import java.util.List;
 import java.util.Map;
 
 public class Config extends ManagerObject {
@@ -111,19 +112,19 @@ public class Config extends ManagerObject {
     }
 
     public boolean getBoolean(String key) {
-        return configFile.get(key);
+        return Boolean.parseBoolean(configFile.get(key).toString());
     }
 
     public JSONObject getJSON(String key) {
-        return configFile.get(key);
+        return (JSONObject)configFile.get(key);
     }
 
     public Map<String, String> getMap(String key) {
-        return configFile.get(key);
+        return (Map<String, String>)configFile.get(key);
     }
 
-    public JSONArray getList(String key) {
-        return configFile.get(key);
+    public List getList(String key) {
+        return (List)configFile.get(key);
     }
 
     public void clear() {
@@ -139,6 +140,14 @@ public class Config extends ManagerObject {
         json.put("file-extension", configFile.getExtension());
 
         return json;
+    }
+
+    public boolean load(String key) {
+        return configFile.load(key);
+    }
+
+    public boolean unload(String key) {
+        return configFile.unload(key);
     }
 
     @Override

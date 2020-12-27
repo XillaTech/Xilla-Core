@@ -57,7 +57,6 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
 
     public void save() {
         if(config != null) {
-            config.clear();
             for (Value object : data.values()) {
                 try {
                     XillaJson json = object.getSerializedData();
@@ -81,31 +80,46 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
         if(clazz != null) {
             XillaJson json = getConfig().getJson();
 
-            json.getJson().remove("file-extension");
+            json.remove("file-extension");
 
             for (Object key : json.getJson().keySet()) {
-                ConfigSection section = getConfig().getConfigFile().getSection(key.toString());
+                Object data = config.getConfigFile().getIndex().get(key.toString());
 
-                Value object = get((Key)key);
-                if (object == null) {
-                    object = getObject((Key)key, section.getJson());
-                    if (object == null) {
-                        Logger.log(LogLevel.ERROR, "No valid constructor found for objects in manager " + getName(), getClass());
-                    } else {
-                        put(object);
+                if(data instanceof Boolean) {
+                    Boolean b = (Boolean) data;
+
+                    if(b) {
+                        loadItem((Key)key);
                     }
                 } else {
-                    object.loadSerializedData(section.getJson());
-                    if(object.getKey() == null) {
-                        object.setKey((Key)key);
-                    }
-                    if(object.getManager() == null) {
-                        object.setManager((Manager<Object, ManagerObject>) this);
-                    }
-                    remove(object);
-                    put(object);
+                    loadItem((Key)key);
                 }
+
             }
+        }
+    }
+
+    protected void loadItem(Key key) {
+        ConfigSection section = getConfig().getConfigFile().getSection(key.toString());
+
+        Value object = get(key);
+        if (object == null) {
+            object = getObject(key, section.getJson());
+            if (object == null) {
+                Logger.log(LogLevel.ERROR, "No valid constructor found for objects in manager " + getName(), getClass());
+            } else {
+                put(object);
+            }
+        } else {
+            object.loadSerializedData(section.getJson());
+            if(object.getKey() == null) {
+                object.setKey(key);
+            }
+            if(object.getManager() == null) {
+                object.setManager((Manager<Object, ManagerObject>) this);
+            }
+            remove(object);
+            put(object);
         }
     }
 
@@ -128,16 +142,31 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
         }
 
         objectAdded(object);
+
+        if(config != null) {
+            config.load(object.getKey().toString());
+        }
+
         this.data.put((Key)object.getKey(), object);
     }
 
     public void remove(Value object) {
         objectRemoved(object);
+
+        if(config != null) {
+            config.getConfigFile().remove(object.getKey().toString());
+        }
+
         this.data.remove(object.getKey());
     }
 
     public void removeKey(Key key) {
         objectRemoved(get(key));
+
+        if(config != null) {
+            config.getConfigFile().remove(get(key).getKey().toString());
+        }
+
         this.data.remove(key);
     }
 
@@ -209,9 +238,10 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
     }
 
     public boolean containsKey(Key key) {
-        return data.containsKey(key);
+        return getConfig().getConfigFile().contains(key.toString());
     }
 
+    @Deprecated
     public boolean containsValue(Value value) {
         return data.containsValue(value);
     }
@@ -234,6 +264,26 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
     public void clear() {
         data.forEach(((key, value) -> objectRemoved(value)));
         data.clear();
+    }
+
+    public boolean load(Key key) {
+        if(config != null) {
+            if (config.load(key.toString())) {
+                loadItem(key);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean unload(Key key) {
+        if(config != null) {
+            if (config.unload(key.toString())) {
+                data.remove(key);
+                return true;
+            }
+        }
+        return false;
     }
 
     public Set<Key> keySet() {

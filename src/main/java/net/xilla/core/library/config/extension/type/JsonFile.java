@@ -12,11 +12,15 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class JsonFile extends XillaJson implements ConfigFile {
+public class JsonFile implements ConfigFile {
 
     @Getter
     @Setter
     private String file = null;
+
+    @Getter
+    @Setter
+    private XillaJson json = new XillaJson();
 
     @Override
     public void save() {
@@ -30,13 +34,18 @@ public class JsonFile extends XillaJson implements ConfigFile {
     }
 
     @Override
-    public <T> T get(String key) {
-        return super.get(key);
+    public void remove(String key) {
+
+    }
+
+    @Override
+    public Object get(String key) {
+        return json.get(key);
     }
 
     @Override
     public void set(String key, Object object) {
-        super.put(key, object);
+        json.put(key, object);
     }
 
     @Override
@@ -55,7 +64,7 @@ public class JsonFile extends XillaJson implements ConfigFile {
 
         try {
             FileReader fileReader = new FileReader(file);
-            parse(fileReader);
+            json.parse(fileReader);
             fileReader.close();
         } catch (Exception e) {
         }
@@ -63,18 +72,18 @@ public class JsonFile extends XillaJson implements ConfigFile {
 
     @Override
     public void clear() {
-        setJson(new JSONObject());
+        json.setJson(new JSONObject());
         save();
     }
 
     @Override
     public boolean contains(String key) {
-        return containsKey(key);
+        return json.containsKey(key);
     }
 
     @Override
     public ConfigSection getSection(String key) {
-        return new ConfigSection(key, new XillaJson(get(key)));
+        return new ConfigSection(key, new XillaJson((JSONObject) get(key)));
     }
 
     @Override
@@ -91,11 +100,11 @@ public class JsonFile extends XillaJson implements ConfigFile {
 
     @Override
     public XillaJson getIndex() {
-        return this;
+        return json;
     }
 
     private String formatJSONStr() {
-        final String json_str = toJSONString();
+        final String json_str = json.toJSONString();
         final int indent_width = 1;
         final char[] chars = json_str.toCharArray();
         final String newline = System.lineSeparator();
@@ -142,7 +151,7 @@ public class JsonFile extends XillaJson implements ConfigFile {
     public JsonFile duplicate() {
         JsonFile jsonFile = new JsonFile();
         jsonFile.setFile(file);
-        jsonFile.setJson(getJson());
+        jsonFile.setJson(json);
         return jsonFile;
     }
 

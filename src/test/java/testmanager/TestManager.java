@@ -9,11 +9,17 @@ public class TestManager extends Manager<String, TestObject> {
     }
 
     public TestManager() {
-        super("Test", "test-file.json", TestObject.class);
+        super("Test", "test-folder.jsonf", TestObject.class);
         load();
 
-        if(!containsKey("test")) {
-            put(new TestObject("test"));
+        if(!containsKey("test1")) {
+            put(new TestObject("test1"));
+        }
+        if(!containsKey("test2")) {
+            put(new TestObject("test2"));
+        }
+        if(!containsKey("test3")) {
+            put(new TestObject("test3"));
         }
 
         save();
