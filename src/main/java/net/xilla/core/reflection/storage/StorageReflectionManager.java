@@ -1,4 +1,4 @@
-package net.xilla.core.reflection;
+package net.xilla.core.reflection.storage;
 
 import lombok.Getter;
 import net.xilla.core.library.config.ConfigFile;
@@ -7,24 +7,20 @@ import net.xilla.core.library.json.XillaJson;
 import net.xilla.core.library.manager.Manager;
 import net.xilla.core.log.LogLevel;
 import net.xilla.core.log.Logger;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.UUID;
 
-public class ReflectionManager extends Manager<Class, Reflection> {
+public class StorageReflectionManager extends Manager<Class, StorageReflection> {
 
     @Getter
-    private static ReflectionManager instance = new ReflectionManager();
+    private static StorageReflectionManager instance = new StorageReflectionManager();
 
-    public ReflectionManager() {
-        super("Reflection", Reflection.class);
+    public StorageReflectionManager() {
+        super("StorageReflection", StorageReflection.class);
 
         instance = this;
 
@@ -33,7 +29,7 @@ public class ReflectionManager extends Manager<Class, Reflection> {
 
     public void initialize() {
         // STRING
-        put(new Reflection<String>(String.class) {
+        put(new StorageReflection<String>(String.class) {
             @Override
             public String loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
                 return object.toString();
@@ -46,7 +42,7 @@ public class ReflectionManager extends Manager<Class, Reflection> {
         });
 
         // INTEGER
-        put(new Reflection<Integer>(Integer.class) {
+        put(new StorageReflection<Integer>(Integer.class) {
             @Override
             public Integer loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
                 return Integer.parseInt(object.toString());
@@ -59,7 +55,7 @@ public class ReflectionManager extends Manager<Class, Reflection> {
         });
 
         // LONG
-        put(new Reflection<Long>(Long.class) {
+        put(new StorageReflection<Long>(Long.class) {
             @Override
             public Long loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
                 return Long.parseLong(object.toString());
@@ -72,7 +68,7 @@ public class ReflectionManager extends Manager<Class, Reflection> {
         });
 
         // DOUBLE
-        put(new Reflection<Double>(Double.class) {
+        put(new StorageReflection<Double>(Double.class) {
             @Override
             public Double loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
                 return Double.parseDouble(object.toString());
@@ -84,8 +80,21 @@ public class ReflectionManager extends Manager<Class, Reflection> {
             }
         });
 
+        // DOUBLE
+        put(new StorageReflection<BigDecimal>(BigDecimal.class) {
+            @Override
+            public BigDecimal loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
+                return new BigDecimal(object.toString());
+            }
+
+            @Override
+            public Object getSerializedData(ConfigFile file, Object obj, Field field, BigDecimal object) {
+                return "" + object.toPlainString();
+            }
+        });
+
         // FLOAT
-        put(new Reflection<Float>(Float.class) {
+        put(new StorageReflection<Float>(Float.class) {
             @Override
             public Float loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
                 return Float.parseFloat(object.toString());
@@ -98,7 +107,7 @@ public class ReflectionManager extends Manager<Class, Reflection> {
         });
 
         // BYTE
-        put(new Reflection<Byte>(Byte.class) {
+        put(new StorageReflection<Byte>(Byte.class) {
             @Override
             public Byte loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
                 return Byte.parseByte(object.toString());
@@ -111,7 +120,7 @@ public class ReflectionManager extends Manager<Class, Reflection> {
         });
 
         // SHORT
-        put(new Reflection<Short>(Short.class) {
+        put(new StorageReflection<Short>(Short.class) {
             @Override
             public Short loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
                 return Short.parseShort(object.toString());
@@ -124,7 +133,7 @@ public class ReflectionManager extends Manager<Class, Reflection> {
         });
 
         // UUID
-        put(new Reflection<UUID>(UUID.class) {
+        put(new StorageReflection<UUID>(UUID.class) {
             @Override
             public UUID loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {
                 return UUID.fromString(object.toString());
@@ -221,7 +230,7 @@ public class ReflectionManager extends Manager<Class, Reflection> {
 //        });
 
         // SERIALIZED OBJECTS / MANAGER OBJECTS
-        put(new Reflection<SerializedObject>(SerializedObject.class) {
+        put(new StorageReflection<SerializedObject>(SerializedObject.class) {
 
             @Override
             public SerializedObject loadFromSerializedData(ConfigFile file, Object obj, Field field, Object object) {

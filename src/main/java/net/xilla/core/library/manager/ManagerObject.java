@@ -2,16 +2,15 @@ package net.xilla.core.library.manager;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.xilla.core.library.XillaLibrary;
 import net.xilla.core.library.config.Config;
 import net.xilla.core.library.config.ConfigFile;
 import net.xilla.core.library.json.SerializedObject;
 import net.xilla.core.library.json.XillaJson;
 import net.xilla.core.log.LogLevel;
 import net.xilla.core.log.Logger;
-import net.xilla.core.reflection.Reflection;
-import net.xilla.core.reflection.ReflectionManager;
-import org.json.simple.JSONObject;
+import net.xilla.core.reflection.storage.StorageReflection;
+import net.xilla.core.reflection.storage.StorageReflectionManager;
+import org.json.simple.JSONAware;
 
 import java.lang.reflect.Field;
 
@@ -78,7 +77,7 @@ public abstract class ManagerObject implements ObjectInterface {
                 if (field.getAnnotation(StoredData.class) != null) {
                     Object input = json.get(field.getName());
                     if(input != null) {
-                        Reflection reflection = ReflectionManager.getInstance().get(field.getType());
+                        StorageReflection reflection = StorageReflectionManager.getInstance().get(field.getType());
 
                         boolean locked = false;
                         if (!field.isAccessible()) {
@@ -104,7 +103,7 @@ public abstract class ManagerObject implements ObjectInterface {
                             try {
                                 Object obj = field.get(this);
                                 if (obj instanceof SerializedObject) {
-                                    reflection = ReflectionManager.getInstance().get(SerializedObject.class);
+                                    reflection = StorageReflectionManager.getInstance().get(SerializedObject.class);
                                 }
 
                                 try {
@@ -126,7 +125,7 @@ public abstract class ManagerObject implements ObjectInterface {
                             try {
                                 Object obj = field.get(this);
                                 if (obj instanceof SerializedObject) {
-                                    reflection = ReflectionManager.getInstance().get(SerializedObject.class);
+                                    reflection = StorageReflectionManager.getInstance().get(SerializedObject.class);
 
                                     try {
                                         Object loaded = reflection.loadFromSerializedData(file, this, field, input);
@@ -141,8 +140,6 @@ public abstract class ManagerObject implements ObjectInterface {
                                         Logger.log(ex, getClass());
                                     }
                                 }
-
-
                                 field.set(this, input);
                             } catch (Exception ex) {
                                 Logger.log(LogLevel.ERROR, "Failed to load variable " + field.getName(), getClass());
@@ -174,7 +171,7 @@ public abstract class ManagerObject implements ObjectInterface {
             while (clazz.getSuperclass() != null && !clazz.getSuperclass().getName().equals("ManagerObject")) {
                 for (Field field : clazz.getDeclaredFields()) {
                     if (field.getAnnotation(StoredData.class) != null) {
-                        Reflection reflection = ReflectionManager.getInstance().get(field.getType());
+                        StorageReflection reflection = StorageReflectionManager.getInstance().get(field.getType());
 
                         boolean locked = false;
                         if (!field.isAccessible()) {
@@ -185,7 +182,7 @@ public abstract class ManagerObject implements ObjectInterface {
                         try {
                             Object obj = field.get(this);
                             if(obj instanceof SerializedObject) {
-                                reflection = ReflectionManager.getInstance().get(SerializedObject.class);
+                                reflection = StorageReflectionManager.getInstance().get(SerializedObject.class);
                             }
                         } catch (IllegalAccessException e) {
                             e.printStackTrace();
