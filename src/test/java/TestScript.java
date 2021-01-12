@@ -1,16 +1,18 @@
-public class Test {
+import net.xilla.core.script.Script;
+
+public class TestScript {
 
     public static void main(String[] args) {
-        new Test();
+        new TestScript();
     }
 
-    public Test() {
+    public TestScript() {
 
-//        try {
-//            new Script("test_script.xs").run();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
+        try {
+            new Script("test_script.xs").run();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 //        try {
 //            XillaConnection<TestPacket> xillaConnection = new XillaConnection<>("Test", null, 732, 732, TestPacket.class);
