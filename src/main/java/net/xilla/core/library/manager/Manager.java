@@ -75,7 +75,7 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
         }
     }
 
-    protected void load() {
+    public void load() {
         config.reload();
         if(clazz != null) {
             XillaJson json = getConfig().getJson();

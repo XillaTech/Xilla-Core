@@ -11,18 +11,4 @@ public class XillaManager extends Manager<String, Manager> {
         super("Xilla_Manager");
     }
 
-    @Override
-    protected void load() {
-
-    }
-
-    @Override
-    protected void objectAdded(Manager obj) {
-
-    }
-
-    @Override
-    protected void objectRemoved(Manager obj) {
-
-    }
 }

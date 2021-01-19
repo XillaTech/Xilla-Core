@@ -17,9 +17,4 @@ public class ConfigManager extends Manager<String, Config> {
         super("Configs");
     }
 
-    @Override
-    protected void load() {
-
-    }
-
 }
