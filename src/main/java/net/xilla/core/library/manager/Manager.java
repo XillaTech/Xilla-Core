@@ -127,6 +127,10 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
 
     protected void objectRemoved(Value obj) {}
 
+    protected void postObjectAdded(Value obj) {}
+
+    protected void postObjectRemoved(Value obj) {}
+
     public void put(Value object) {
 
         if(object == null) {
@@ -148,6 +152,8 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
         }
 
         this.data.put((Key)object.getKey(), object);
+
+        postObjectAdded(object);
     }
 
     public void remove(Value object) {
@@ -158,16 +164,21 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
         }
 
         this.data.remove(object.getKey());
+
+        postObjectRemoved(object);
     }
 
     public void removeKey(Key key) {
-        objectRemoved(get(key));
+        Value obj = get(key);
+        objectRemoved(obj);
 
         if(config != null) {
             config.getConfigFile().remove(get(key).getKey().toString());
         }
 
         this.data.remove(key);
+
+        postObjectRemoved(obj);
     }
 
     public Value get(Key key) {
@@ -217,8 +228,9 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
                     }
 //                    Logger.log(LogLevel.DEBUG, "Loaded object " + obj.getKey() + " - " + obj.getSerializedData().toJSONString(), getClass());
                     return obj;
-                } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
-                    e.printStackTrace();
+                } catch (Exception e) {
+                    Logger.log(LogLevel.ERROR, "Error while loading object " + key, getClass());
+                    Logger.log(e, getClass());
                 }
             }
         }
@@ -246,21 +258,24 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
         return data.containsValue(value);
     }
 
-    public Value put(Key key, Value value) {
-        objectAdded(value);
-        return data.put(key, value);
-    }
-
     public Value remove(Key key) {
-        objectRemoved(data.get(key));
-        return data.remove(key);
+        Value obj = get(key);
+        objectRemoved(obj);
+
+        Value v = data.remove(key);
+
+        postObjectRemoved(obj);
+
+        return v;
     }
 
+    @Deprecated
     public void putAll(Map<? extends Key, ? extends Value> m) {
-        data.putAll(m);
         m.forEach(((key, value) -> objectAdded(value)));
+        data.putAll(m);
     }
 
+    @Deprecated
     public void clear() {
         data.forEach(((key, value) -> objectRemoved(value)));
         data.clear();
