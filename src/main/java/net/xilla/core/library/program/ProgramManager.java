@@ -6,6 +6,8 @@ import net.xilla.core.library.manager.Manager;
 import net.xilla.core.library.manager.ManagerObject;
 import net.xilla.core.library.manager.XillaManager;
 import net.xilla.core.library.worker.Worker;
+import net.xilla.core.log.LogLevel;
+import net.xilla.core.log.Logger;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,21 +61,42 @@ public class ProgramManager extends ManagerObject {
         startupSequence.add(new StartupProcess("Settings", StartupPriority.CORE_SETTINGS) {
             @Override
             public void run() {
-                settings.forEach(Settings::startup);
+                settings.forEach((setting -> {
+                    try {
+                        setting.startup();
+                    } catch (Exception ex) {
+                        Logger.log(LogLevel.ERROR, "Settings " + setting.getKey() + " threw an error!", getClass());
+                        ex.printStackTrace();
+                    }
+                }));
             }
         });
 
         startupSequence.add(new StartupProcess("Managers", StartupPriority.CORE_MANAGERS) {
             @Override
             public void run() {
-                managers.forEach(Manager::load);
+                managers.forEach((manager -> {
+                    try {
+                        manager.load();
+                    } catch (Exception ex) {
+                        Logger.log(LogLevel.ERROR, "Manager " + manager.getKey() + " threw an error!", getClass());
+                        ex.printStackTrace();
+                    }
+                }));
             }
         });
 
         startupSequence.add(new StartupProcess("Workers", StartupPriority.CORE_WORKERS) {
             @Override
             public void run() {
-                workers.forEach(Worker::start);
+                workers.forEach((worker -> {
+                    try {
+                        worker.start();
+                    } catch (Exception ex) {
+                        Logger.log(LogLevel.ERROR, "Worker " + worker.getKey() + " threw an error!", getClass());
+                        ex.printStackTrace();
+                    }
+                }));
             }
         });
     };

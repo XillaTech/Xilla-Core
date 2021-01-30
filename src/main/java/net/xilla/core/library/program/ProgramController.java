@@ -33,7 +33,7 @@ public class ProgramController {
     }
 
     public <T extends Manager> T getManager(String name) {
-        return (T)this.manager.getXillaManagers().get(manager);
+        return (T)this.manager.getXillaManagers().get(name);
     }
 
     public <T extends Manager> T getManager(Class clazz) {
