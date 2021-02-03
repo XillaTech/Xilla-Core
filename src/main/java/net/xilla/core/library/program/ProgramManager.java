@@ -154,7 +154,10 @@ public class ProgramManager extends ManagerObject {
 
         queue.sort(Comparator.comparingInt(o -> o.getPriority().ordinal()));
 
-        queue.forEach((Runnable::run));
+        queue.forEach((q) -> {
+            Logger.log(LogLevel.DEBUG, "Running startup item " + q.getKey() + " with priority " + q.getPriority(), getClass());
+            q.run();
+        });
     }
 
 }

@@ -9,6 +9,7 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
+import java.util.Hashtable;
 import java.util.StringTokenizer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -44,6 +45,8 @@ public class WebServer {
 
     private int port;
 
+    public static final Hashtable<String, String> MIME_TYPES = new Hashtable<>();
+
     public WebServer(String directory, int port, int threads) throws IOException {
 
         if(directory == null || directory.isEmpty()) {
@@ -56,6 +59,17 @@ public class WebServer {
 
         this.executor = Executors.newFixedThreadPool(threads);
         this.port = port;
+
+        String image = "image/";
+        MIME_TYPES.put(".gif", image + "gif");
+        MIME_TYPES.put(".jpg", image + "jpeg");
+        MIME_TYPES.put(".jpeg", image + "jpeg");
+        MIME_TYPES.put(".png", image + "png");
+        String text = "text/";
+        MIME_TYPES.put(".html", text + "html");
+        MIME_TYPES.put(".htm", text + "html");
+        MIME_TYPES.put(".txt", text + "plain");
+
     }
 
     public void start() throws IOException {
@@ -98,7 +112,7 @@ public class WebServer {
             fileRequested = parse.nextToken();
 
             // we support only GET and HEAD methods, we check
-            if (!method.equals("GET")  &&  !method.equals("HEAD")) {
+            if (!method.equals("GET") && !method.equals("HEAD")) {
                 if(verbose) {
                     Logger.log(LogLevel.INFO, "501 Not Implemented : " + method + " method.", getClass());
                 }
@@ -216,10 +230,13 @@ public class WebServer {
 
     // return supported MIME Types
     private String getContentType(String fileRequested) {
-        if (fileRequested.endsWith(".htm")  ||  fileRequested.endsWith(".html"))
-            return "text/html";
-        else
-            return "text/plain";
+        for(String ext : MIME_TYPES.keySet()) {
+            if(fileRequested.endsWith(ext)) {
+                return MIME_TYPES.get(ext);
+            }
+        }
+
+        return "text/html";
     }
 
     private void fileNotFound(PrintWriter out, OutputStream dataOut, String fileRequested) throws IOException {
