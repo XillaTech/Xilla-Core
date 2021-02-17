@@ -7,11 +7,15 @@ import net.xilla.core.library.config.ConfigSection;
 import net.xilla.core.library.json.XillaJson;
 import net.xilla.core.log.LogLevel;
 import net.xilla.core.log.Logger;
+import org.json.simple.JSONObject;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
 
@@ -29,7 +33,12 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
     @Getter
     private final Map<Key, Value> data = new ConcurrentHashMap<>();
 
+    @Getter
     private Class<Value> clazz = null;
+
+    @Getter
+    @Setter
+    private int threads = 1;
 
     public Manager(String name) {
         super(name, XillaManager.getInstance());
@@ -57,18 +66,36 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
 
     public void save() {
         if(config != null) {
+
+            ExecutorService pool = Executors.newFixedThreadPool(threads);
+
+            ConcurrentHashMap<String, JSONObject> temp = new ConcurrentHashMap();
             for (Value object : data.values()) {
-                try {
-                    XillaJson json = object.getSerializedData();
-                    if(json == null) {
-                        throw new Exception("Manager Object is missing json data!");
+                pool.submit(() -> {
+                    try {
+                        XillaJson json = object.getSerializedData();
+                        if(json == null) {
+                            throw new Exception("Manager Object is missing json data!");
+                        }
+                        temp.put(object.getKey().toString(), json.getJson());
+                    } catch (Exception ex) {
+                        Logger.log(LogLevel.ERROR, "Error while saving item " + object.getKey() + "!", getClass());
+                        ex.printStackTrace();
                     }
-                    config.set(object.getKey().toString(), json.getJson());
-                } catch (Exception ex) {
-                    Logger.log(LogLevel.ERROR, "Error while saving item " + object.getKey() + "!", getClass());
-                    ex.printStackTrace();
-                }
+                });
             }
+
+            pool.shutdown();
+            try {
+                pool.awaitTermination(1, TimeUnit.HOURS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            for(String key : temp.keySet()) {
+                config.set(key, temp.get(key));
+            }
+
             config.save();
         } else {
             Logger.log(LogLevel.ERROR, "You cannot save the manager without setting a config file!", this.getClass());
@@ -82,24 +109,34 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
 
             json.remove("file-extension");
 
+            ExecutorService pool = Executors.newFixedThreadPool(threads);
+
             for (Object key : json.getJson().keySet()) {
-                Object data = config.getConfigFile().getIndex().get(key.toString());
 
-                if(data instanceof Boolean) {
-                    Boolean b = (Boolean) data;
+                pool.submit(() -> {
+                    Object data = config.getConfigFile().getIndex().get(key.toString());
 
-                    if(b) {
+                    if(data instanceof Boolean) {
+                        Boolean b = (Boolean) data;
+                        if(b) {
+                            loadItem((Key)key);
+                        }
+                    } else {
                         loadItem((Key)key);
                     }
-                } else {
-                    loadItem((Key)key);
-                }
+                });
+            }
 
+            pool.shutdown();
+            try {
+                pool.awaitTermination(1, TimeUnit.HOURS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
 
-    protected void loadItem(Key key) {
+    public void loadItem(Key key) {
         ConfigSection section = getConfig().getConfigFile().getSection(key.toString());
 
         Value object = get(key);

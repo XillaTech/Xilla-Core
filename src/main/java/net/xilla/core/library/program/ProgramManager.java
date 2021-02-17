@@ -77,7 +77,9 @@ public class ProgramManager extends ManagerObject {
             public void run() {
                 managers.forEach((manager -> {
                     try {
-                        manager.load();
+                        if(manager.getConfig() != null) {
+                            manager.load();
+                        }
                     } catch (Exception ex) {
                         Logger.log(LogLevel.ERROR, "Manager " + manager.getKey() + " threw an error!", getClass());
                         ex.printStackTrace();

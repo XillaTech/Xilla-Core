@@ -13,6 +13,7 @@ import net.xilla.core.reflection.storage.StorageReflectionManager;
 import org.json.simple.JSONAware;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 
 public abstract class ManagerObject implements ObjectInterface {
 
@@ -73,65 +74,45 @@ public abstract class ManagerObject implements ObjectInterface {
 
         Class<?> clazz = getClass();
         while (clazz.getSuperclass() != null && !clazz.getName().equals("ManagerObject")) {
-            for (Field field : clazz.getDeclaredFields()) {
-                if (field.getAnnotation(StoredData.class) != null) {
-                    Object input = json.get(field.getName());
-                    if(input != null) {
-                        StorageReflection reflection = StorageReflectionManager.getInstance().get(field.getType());
+            for (int i = 0; i < clazz.getDeclaredFields().length; i++) {
+                Field field = clazz.getDeclaredFields()[i];
+                try {
+                    if (field.getAnnotation(StoredData.class) != null) {
+                        Object input = json.get(field.getName());
+                        if (input != null) {
+                            StorageReflection reflection = StorageReflectionManager.getInstance().get(field.getType());
 
-                        boolean locked = false;
-                        if (!field.isAccessible()) {
-                            field.setAccessible(true);
-                            locked = true;
-                        }
-
-                        ConfigFile file = null;
-                        Manager manager = this.getManager();
-
-                        if(manager == null && json.containsKey("manager")) {
-                            manager = XillaManager.getInstance().get(json.get("manager").toString());
-                        }
-
-                        if (manager != null) {
-                            Config config = manager.getConfig();
-                            if (config != null) {
-                                file = config.getConfigFile();
+                            boolean locked = false;
+                            if (!field.isAccessible()) {
+                                field.setAccessible(true);
+                                locked = true;
                             }
-                        }
 
-                        if(reflection != null) {
-                            try {
-                                Object obj = field.get(this);
-                                if (obj instanceof SerializedObject) {
-                                    reflection = StorageReflectionManager.getInstance().get(SerializedObject.class);
+                            ConfigFile file = null;
+                            Manager manager = this.getManager();
+
+                            if (manager == null && json.containsKey("manager")) {
+                                manager = XillaManager.getInstance().get(json.get("manager").toString());
+                            }
+
+                            if (manager != null) {
+                                Config config = manager.getConfig();
+                                if (config != null) {
+                                    file = config.getConfigFile();
                                 }
+                            }
 
+                            if (reflection != null) {
                                 try {
-                                    Object loaded = reflection.loadFromSerializedData(file, this, field, input);
-                                    if(loaded != null) {
-                                        field.set(this, loaded);
-                                    } else {
-                                        throw new Exception("Failed to load serialized data, as it returned null");
+                                    Object obj = field.get(this);
+                                    if (obj instanceof SerializedObject) {
+                                        reflection = StorageReflectionManager.getInstance().get(SerializedObject.class);
                                     }
-                                } catch (Exception ex) {
-                                    Logger.log(LogLevel.ERROR, "Failed to set variable " + field.getName(), getClass());
-                                    Logger.log(ex, getClass());
-                                }
-
-                            } catch (IllegalAccessException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            try {
-                                Object obj = field.get(this);
-                                if (obj instanceof SerializedObject) {
-                                    reflection = StorageReflectionManager.getInstance().get(SerializedObject.class);
 
                                     try {
                                         Object loaded = reflection.loadFromSerializedData(file, this, field, input);
-                                        if(loaded != null) {
+                                        if (loaded != null) {
                                             field.set(this, loaded);
-                                            return;
                                         } else {
                                             throw new Exception("Failed to load serialized data, as it returned null");
                                         }
@@ -139,19 +120,45 @@ public abstract class ManagerObject implements ObjectInterface {
                                         Logger.log(LogLevel.ERROR, "Failed to set variable " + field.getName(), getClass());
                                         Logger.log(ex, getClass());
                                     }
+
+                                } catch (IllegalAccessException e) {
+                                    e.printStackTrace();
                                 }
-                                field.set(this, input);
-                            } catch (Exception ex) {
-                                Logger.log(LogLevel.ERROR, "Failed to load variable " + field.getName(), getClass());
-                                Logger.log(ex, getClass());
+                            } else {
+                                try {
+                                    Object obj = field.get(this);
+                                    if (obj instanceof SerializedObject) {
+                                        reflection = StorageReflectionManager.getInstance().get(SerializedObject.class);
+
+                                        try {
+                                            Object loaded = reflection.loadFromSerializedData(file, this, field, input);
+                                            if (loaded != null) {
+                                                field.set(this, loaded);
+                                                return;
+                                            } else {
+                                                throw new Exception("Failed to load serialized data, as it returned null");
+                                            }
+                                        } catch (Exception ex) {
+                                            Logger.log(LogLevel.ERROR, "Failed to set variable " + field.getName(), getClass());
+                                            Logger.log(ex, getClass());
+                                        }
+                                    }
+                                    field.set(this, input);
+                                } catch (Exception ex) {
+                                    Logger.log(LogLevel.ERROR, "Failed to load variable " + field.getName(), getClass());
+                                    Logger.log(ex, getClass());
+                                }
                             }
-                        }
 
-                        if(locked) {
-                            field.setAccessible(false);
-                        }
+                            if (locked) {
+                                field.setAccessible(false);
+                            }
 
+                        }
                     }
+                } catch (Exception ex) {
+                    Logger.log(LogLevel.ERROR, "Failed to load field " + field.getName() + " for reason " + ex.getMessage(), getClass());
+                    Logger.log(LogLevel.ERROR, ex, getClass());
                 }
             }
             clazz = clazz.getSuperclass();
