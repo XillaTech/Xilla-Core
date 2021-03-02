@@ -72,13 +72,21 @@ public abstract class ManagerObject implements ObjectInterface {
             json.getJson().remove("file-extension");
         }
 
+//        Logger.log(LogLevel.DEBUG, "Loading manager object with json " + json.toJSONString(), getClass());
+
         Class<?> clazz = getClass();
         while (clazz.getSuperclass() != null && !clazz.getName().equals("ManagerObject")) {
             for (int i = 0; i < clazz.getDeclaredFields().length; i++) {
-                Field field = clazz.getDeclaredFields()[i];
                 try {
+                    Field field = clazz.getDeclaredFields()[i];
+
+//                    Logger.log(LogLevel.DEBUG, "Populating manager object field " + field.getName(), getClass());
+
                     if (field.getAnnotation(StoredData.class) != null) {
                         Object input = json.get(field.getName());
+
+//                        Logger.log(LogLevel.DEBUG, "Populating field " + field.getName() + " with data " + input, getClass());
+
                         if (input != null) {
                             StorageReflection reflection = StorageReflectionManager.getInstance().get(field.getType());
 
@@ -102,9 +110,9 @@ public abstract class ManagerObject implements ObjectInterface {
                                 }
                             }
 
-                            if (reflection != null) {
-                                try {
-                                    Object obj = field.get(this);
+                            try {
+                                Object obj = field.get(this);
+                                if (reflection != null || obj instanceof SerializedObject) {
                                     if (obj instanceof SerializedObject) {
                                         reflection = StorageReflectionManager.getInstance().get(SerializedObject.class);
                                     }
@@ -120,35 +128,13 @@ public abstract class ManagerObject implements ObjectInterface {
                                         Logger.log(LogLevel.ERROR, "Failed to set variable " + field.getName(), getClass());
                                         Logger.log(ex, getClass());
                                     }
-
-                                } catch (IllegalAccessException e) {
-                                    e.printStackTrace();
-                                }
-                            } else {
-                                try {
-                                    Object obj = field.get(this);
-                                    if (obj instanceof SerializedObject) {
-                                        reflection = StorageReflectionManager.getInstance().get(SerializedObject.class);
-
-                                        try {
-                                            Object loaded = reflection.loadFromSerializedData(file, this, field, input);
-                                            if (loaded != null) {
-                                                field.set(this, loaded);
-                                                return;
-                                            } else {
-                                                throw new Exception("Failed to load serialized data, as it returned null");
-                                            }
-                                        } catch (Exception ex) {
-                                            Logger.log(LogLevel.ERROR, "Failed to set variable " + field.getName(), getClass());
-                                            Logger.log(ex, getClass());
-                                        }
-                                    }
+                                } else {
                                     field.set(this, input);
-                                } catch (Exception ex) {
+                                }
+                            } catch (Exception ex) {
                                     Logger.log(LogLevel.ERROR, "Failed to load variable " + field.getName(), getClass());
                                     Logger.log(ex, getClass());
                                 }
-                            }
 
                             if (locked) {
                                 field.setAccessible(false);
@@ -157,6 +143,7 @@ public abstract class ManagerObject implements ObjectInterface {
                         }
                     }
                 } catch (Exception ex) {
+                    Field field = clazz.getDeclaredFields()[i];
                     Logger.log(LogLevel.ERROR, "Failed to load field " + field.getName() + " for reason " + ex.getMessage(), getClass());
                     Logger.log(LogLevel.ERROR, ex, getClass());
                 }

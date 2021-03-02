@@ -40,6 +40,10 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
     @Setter
     private int threads = 1;
 
+    @Getter
+    @Setter
+    private boolean loaded = false;
+
     public Manager(String name) {
         super(name, XillaManager.getInstance());
         this.name = name;
@@ -65,6 +69,9 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
     }
 
     public void save() {
+        if(!loaded) {
+            Logger.log(LogLevel.WARN, "You cannot save the manager " + getKey() + " before it's been loaded!", getClass());
+        }
         if(config != null) {
 
             ExecutorService pool = Executors.newFixedThreadPool(threads);
@@ -103,6 +110,8 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
     }
 
     public void load() {
+        Logger.log(LogLevel.DEBUG, "Loading manager " + toString(), getClass());
+        loaded = false;
         config.reload();
         if(clazz != null) {
             XillaJson json = getConfig().getJson();
@@ -111,19 +120,22 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
 
             ExecutorService pool = Executors.newFixedThreadPool(threads);
 
+            Logger.log(LogLevel.DEBUG, "Loading manager data " + json.toJSONString(), getClass());
             for (Object key : json.getJson().keySet()) {
 
                 pool.submit(() -> {
-                    Object data = config.getConfigFile().getIndex().get(key.toString());
-
-                    if(data instanceof Boolean) {
-                        Boolean b = (Boolean) data;
-                        if(b) {
-                            loadItem((Key)key);
-                        }
-                    } else {
-                        loadItem((Key)key);
-                    }
+                    Logger.log(LogLevel.DEBUG, "Loading manager object " + key.toString(), getClass());
+                    loadItem((Key)key);
+//                    Object data = config.getConfigFile().getIndex().get(key.toString());
+//
+//                    if(data instanceof Boolean) {
+//                        Boolean b = (Boolean) data;
+//                        if(b) {
+//                            loadItem((Key)key);
+//                        }
+//                    } else {
+//                        loadItem((Key)key);
+//                    }
                 });
             }
 
@@ -134,6 +146,7 @@ public class Manager<Key, Value extends ObjectInterface> extends ManagerObject {
                 e.printStackTrace();
             }
         }
+        loaded = true;
     }
 
     public void loadItem(Key key) {

@@ -39,7 +39,7 @@ public class WebServer {
     @Setter
     private boolean verbose = false;
 
-    private ServerSocket serverConnect;
+    private ServerSocket serverSocket;
 
     private ExecutorService executor;
 
@@ -47,7 +47,8 @@ public class WebServer {
 
     public static final Hashtable<String, String> MIME_TYPES = new Hashtable<>();
 
-    public WebServer(String directory, int port, int threads) throws IOException {
+    protected WebServer(ServerSocket socket, String directory, int port, int threads) throws IOException {
+        serverSocket = new ServerSocket(port);
 
         if(directory == null || directory.isEmpty()) {
             directory = System.getProperty("user.dir");
@@ -55,10 +56,10 @@ public class WebServer {
 
         this.webRoot = new File(directory);
 
-        serverConnect = new ServerSocket(port);
-
         this.executor = Executors.newFixedThreadPool(threads);
         this.port = port;
+
+        this.serverSocket = socket;
 
         String image = "image/";
         MIME_TYPES.put(".gif", image + "gif");
@@ -72,12 +73,16 @@ public class WebServer {
 
     }
 
+    public WebServer(String directory, int port, int threads) throws IOException {
+        this(new ServerSocket(port), directory, port, threads);
+    }
+
     public void start() throws IOException {
         if(verbose) {
             Logger.log(LogLevel.INFO, "Server started. Listening for connections on port : " + port, getClass());
         }
         while (isRunning) {
-            Socket connect = serverConnect.accept();
+            Socket connect = serverSocket.accept();
 
             if(verbose) {
                 Logger.log(LogLevel.INFO, "Connection opened. (" + connect.getInetAddress() + ":" + connect.getPort() + ") Keep-alive " + connect.getKeepAlive(), getClass());
