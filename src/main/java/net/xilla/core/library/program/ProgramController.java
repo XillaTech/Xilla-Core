@@ -24,7 +24,7 @@ public class ProgramController {
         return (T)m.get(key);
     }
 
-    public <T extends ObjectInterface> T getObject(Class clazz, String key) {
+    public <T extends ObjectInterface, U extends Manager> T getObject(Class<U> clazz, String key) {
         Manager m = getManager(clazz);
         if(m == null) {
             return null;
@@ -36,24 +36,24 @@ public class ProgramController {
         return (T)this.manager.getXillaManagers().get(name);
     }
 
-    public <T extends Manager> T getManager(Class clazz) {
-        return (T)this.manager.getXillaManagersRefl().get(clazz);
+    public <T extends Manager> T getManager(Class<T> clazz) {
+        return clazz.cast(this.manager.getXillaManagersRefl().get(clazz));
     }
 
     public <T extends Settings> T getSettings(String name) {
         return (T)manager.getXillaSettings().get(name);
     }
 
-    public <T extends Settings> T getSettings(Class clazz) {
-        return (T)manager.getXillaSettingsRefl().get(clazz);
+    public <T extends Settings> T getSettings(Class<T> clazz) {
+        return clazz.cast(manager.getXillaSettingsRefl().get(clazz));
     }
 
     public <T extends Worker> T getWorker(String name) {
         return (T)manager.getXillaWorkers().get(name);
     }
 
-    public <T extends Worker> T getWorker(Class clazz) {
-        return (T)manager.getXillaWorkersRefl().get(clazz);
+    public <T extends Worker> T getWorker(Class<T> clazz) {
+        return clazz.cast(manager.getXillaWorkersRefl().get(clazz));
     }
 
 }
